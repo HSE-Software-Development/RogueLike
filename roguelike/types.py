@@ -1,3 +1,1 @@
-
-
 Coord = tuple[int, int]

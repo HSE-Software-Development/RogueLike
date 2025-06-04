@@ -1,4 +1,4 @@
-from src.game_object import GameObject
+from roguelike.game_objects import GameObject
 
 
 class Level(GameObject):
