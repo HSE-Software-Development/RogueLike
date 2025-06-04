@@ -32,7 +32,7 @@ class Room(GameObject):
 
         actions = new_actions
 
-    def execute_action(self, action: GameAction):
+    def execute_action(self, action: GameAction) -> list[GameAction]:
         if isinstance(action, MoveAction):
             pass
         elif isinstance(action, MoveAction):
@@ -45,7 +45,8 @@ class Room(GameObject):
                     if obj.id == action.sender and not action.selfcast:
                         continue
                     receivers.append(obj)
-            pass
+            for receiver in receivers:
+                action.affect(receiver)
 
 
 

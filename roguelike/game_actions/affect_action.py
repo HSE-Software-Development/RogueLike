@@ -10,7 +10,7 @@ class AffectAction(GameAction):
         sender: GameObject,
         cell: Cell,
         selfcast: bool,
-        affect: Callable[[GameObject], GameAction],
+        affect: Callable[[GameObject], list[GameAction]],
     ):
         self.sender = sender
         self.selfcast = selfcast
