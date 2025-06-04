@@ -39,8 +39,7 @@ class Room(GameObject):
         actions = new_actions
 
     def execute_action(self, action: GameAction):
-
-        pass
+        if isinstance(action, G)
 
 
 # damage / healing --> initiator, cell, meta
