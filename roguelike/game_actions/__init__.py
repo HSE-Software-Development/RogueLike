@@ -1,6 +1,6 @@
-from .action import GameAction
+from .game_action import GameAction
 
 
 __all__ = [
-    "GameAction"
+    "GameAction",
 ]
