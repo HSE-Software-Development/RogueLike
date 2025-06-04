@@ -33,9 +33,11 @@ class Room(GameObject):
         actions = new_actions
 
     def execute_action(self, action: GameAction) -> list[GameAction]:
+        new_actions: list[GameAction] = []
         if isinstance(action, MoveAction):
             pass
         elif isinstance(action, MoveAction):
+            action.object.cell = action.cell
             pass
         elif isinstance(action, AffectAction):
             receivers = []
@@ -45,9 +47,12 @@ class Room(GameObject):
                     if obj.id == action.sender and not action.selfcast:
                         continue
                     receivers.append(obj)
+            
             for receiver in receivers:
-                action.affect(receiver)
+                new_actions.extend(action.affect(receiver))
 
+
+        return new_actions
 
 
 # damage / healing --> initiator, cell, meta

@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
-from roguelike.types import Coord
+from roguelike.types import Cell
 
 counter: int = 0
 
+
 class GameObject(ABC):
 
-    def __init__(self, position: Coord):
+    def __init__(self, cell: Cell):
         self.id: int = counter
         counter += 1
-        self.position = position
+        self.cell = cell
 
     @abstractmethod
     def on_update(self):
@@ -17,4 +18,3 @@ class GameObject(ABC):
     @abstractmethod
     def on_draw():
         pass
-
