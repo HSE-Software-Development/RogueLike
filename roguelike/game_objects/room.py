@@ -1,5 +1,5 @@
 from game_objects import GameObject
-from game_actions import GameAction
+from roguelike.game_actions import GameAction, MoveAction, CreateAction, AffectAction
 from roguelike.types import Cell
 from typing import override
 
@@ -25,12 +25,6 @@ class Room(GameObject):
             self.execute_action(action)
 
         for action in actions:
-            for cell in action.cell:
-                objects_in_cell = self.grid[cell]
-                for obj in objects_in_cell:
-                    if obj.id == action.sender and not action.selfcast:
-                        continue
-                    action.receivers.append(obj)
 
         new_actions: list[GameAction] = []
         for action in actions:
@@ -39,7 +33,20 @@ class Room(GameObject):
         actions = new_actions
 
     def execute_action(self, action: GameAction):
-        if isinstance(action, G)
+        if isinstance(action, MoveAction):
+            pass
+        elif isinstance(action, MoveAction):
+            pass
+        elif isinstance(action, AffectAction):
+            receivers = []
+            for cell in action.cell:
+                objects_in_cell = self.grid[cell]
+                for obj in objects_in_cell:
+                    if obj.id == action.sender and not action.selfcast:
+                        continue
+                    receivers.append(obj)
+            pass
+
 
 
 # damage / healing --> initiator, cell, meta
