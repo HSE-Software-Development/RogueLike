@@ -10,8 +10,8 @@ class WeaponAttackPattern(Enum):
 
 
 class Weapon(GameObject):
-    def __init__(self, position):
-        super().__init__(position)
+    def __init__(self, cell):
+        super().__init__(cell)
 
         self.attack_pattern = WeaponAttackPattern.NullType
 
