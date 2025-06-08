@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from roguelike.types import Cell
+from roguelike.types import Cell, GameAction
+from roguelike.types import Animation
 
 counter: int = 0
 
@@ -12,9 +13,9 @@ class GameObject(ABC):
         self.cell = cell
 
     @abstractmethod
-    def on_update(self):
+    def on_update(self) -> list[GameAction]:
         pass
 
     @abstractmethod
-    def on_draw():
+    def on_draw(self, animation: Animation):
         pass
