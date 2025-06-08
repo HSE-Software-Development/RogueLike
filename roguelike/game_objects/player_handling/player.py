@@ -1,6 +1,6 @@
 from typing import List
 from roguelike.game_objects import GameObject
-from roguelike.game_objects.player_handling.weapons.weapon import Weapon
+from roguelike.game_objects.player_handling.armory.weapon import Weapon
 from roguelike.types import Cell
 
 
