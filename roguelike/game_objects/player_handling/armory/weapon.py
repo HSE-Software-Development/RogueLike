@@ -1,6 +1,9 @@
 from abc import abstractmethod
-from roguelike.game_objects.game_object import GameObject
-from roguelike.game_objects.player_handling.armor import Armor
+from __future__ import annotations
+from typing import List
+from roguelike.game_objects.player_handling.pray import Pray
+from roguelike.types import GameAction, GameObject
+from roguelike.game_objects.player_handling.armory.armor import Armor
 from enum import Enum
 import time
 
@@ -82,12 +85,19 @@ class Weapon(GameObject):
             All data about resists, etc. will be received from armor class
         """
 
-        return (self.physical_damage - armor.vanguard_effect) / min(
+        return abs(self.physical_damage - armor.vanguard_effect) / max(
             (1 - self.percentage_physical_armor_piercing) * armor.physical_armor
             - self.absolute_physical_armor_piercing,
-            0.2,
-        ) + self.magical_damage / min(
+            1.0,
+        ) + self.magical_damage / max(
             (1 - self.percentage_magical_armor_piercing) * armor.magical_armor
             - self.absolute_magical_armor_piercing,
-            0.2,
+            1.0,
         )
+
+    def hit(weapon: Weapon, objects: List[Pray]) -> List[GameAction]:
+        if weapon.__is_attack_time():
+            for pray in objects:
+                damage = weapon.__calculate_damage(pray.armor)
+                pray.health -= damage
+        return []

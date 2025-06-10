@@ -1,4 +1,4 @@
-from roguelike.game_objects.game_object import GameObject
+from roguelike.types import GameObject
 
 
 class Armor(GameObject):

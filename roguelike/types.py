@@ -2,10 +2,13 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 import threading
+from typing import List
 import uuid
 import time
 import os
 import curses
+
+from roguelike.game_objects.room import Room
 
 
 class Rect:
@@ -115,10 +118,11 @@ class Cell:
 
 
 class GameObject(ABC):
-
     def __init__(self, cell: Cell):
         self.id: str = str(uuid.uuid4())
-        self.cell = cell
+        self.cell: Cell = cell
+        self.is_deleted: bool = False
+        self.children: List[GameObject] = []
 
     @abstractmethod
     def init(self):
@@ -138,7 +142,7 @@ class GameAction(ABC):
         pass
 
     @abstractmethod
-    def execute(self, room: "Room") -> list[GameAction]:
+    def execute(self, room: Room) -> list[GameAction]:
         pass
 
 

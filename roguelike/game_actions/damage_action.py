@@ -1,19 +1,17 @@
+from roguelike.game_objects.player_handling.armory.weapon import Weapon
+from roguelike.game_objects.player_handling.pray import Pray
 from roguelike.game_objects.room import Room
 from roguelike.types import Cell, GameObject, GameAction
 from typing import Callable, override
 
 
-class AffectAction(GameAction):
+class DamageAction(GameAction):
     def __init__(
         self,
-        sender: GameObject,
+        weapon: Weapon,
         cells: list[Cell],
-        selfcast: bool,
-        affect: Callable[[list[GameObject]], list[GameAction]],
     ):
-        self.sender = sender
-        self.selfcast = selfcast
-        self.affect = affect
+        self.weapon = weapon
         self.cells = cells
 
     @override
@@ -29,8 +27,8 @@ class AffectAction(GameAction):
         for cell in self.cells:
             objects_in_cell = grid[cell]
             for obj in objects_in_cell:
-                if obj.is_deleted or (obj.id == self.sender and not self.selfcast):
+                if obj.is_deleted or obj.id == self.sender or not isinstance(obj, Pray):
                     continue
                 receivers.append(obj)
 
-        return self.affect(receivers)
+        return self.weapon.hit(receivers)

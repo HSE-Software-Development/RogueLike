@@ -44,7 +44,8 @@ class Room(GameObject):
                 animation.draw(Cell(x, y), ".", z_buffer=0)
 
         for obj in self.objects:
-            obj.on_draw(animation)
+            if not obj.is_deleted:
+                obj.on_draw(animation)
 
         # for door in self.doors:
         #     for x in range(door.x - 1, door.x + 2):
@@ -65,7 +66,8 @@ class Room(GameObject):
     @override
     def on_update(self):
         for obj in self.objects:
-            self.actions.extend(obj.on_update())
+            if not obj.is_deleted:
+                self.actions.extend(obj.on_update())
 
         new_actions: list[GameAction] = []
         for action in self.actions:

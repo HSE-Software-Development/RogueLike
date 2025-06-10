@@ -1,9 +1,14 @@
 from typing import List, override
+from roguelike.game_actions.affect_action import AffectAction
+from roguelike.game_actions.damage_action import DamageAction
+from roguelike.game_actions.move_action import MoveAction
+from roguelike.types import GameObject
 from roguelike.game_objects.player_handling.armory.weapon import (
     Weapon,
     WeaponAttackPattern,
 )
-from roguelike.types import Cell
+from roguelike.game_objects.player_handling.pray import Pray
+from roguelike.types import Cell, GameAction
 
 
 class MeleeWeapon(Weapon):
@@ -13,17 +18,19 @@ class MeleeWeapon(Weapon):
         self.attack_pattern = WeaponAttackPattern.MeleeType
         self.attack_speed = 0.0
         self.range = 0
-        self.attackedCells: List[Cell] = []
+        self.attacked_cells: List[Cell] = []
 
     @override
-    def on_update(self):
+    def on_update(self) -> List[GameAction]:
+        new_actions: List[GameAction] = []
         if self.__is_attack_time():
-            damage = self.__calculate_damage()
             for horizontal_offset in range(0, self.range + 1):
                 for vertical_offset in range(0, self.range + 1):
-                    self.attackedCells.append(
+                    self.attacked_cells.append(
                         self.cell + Cell(horizontal_offset, vertical_offset)
                     )
+            new_actions.append(DamageAction(self, self.attacked_cells, self.hit))
+        return new_actions
 
 
 class WoodSword(MeleeWeapon):
@@ -37,12 +44,14 @@ class WoodSword(MeleeWeapon):
         self.absolute_physical_armor_piercing = 0
 
 
-class Projectile(MeleeWeapon):
+class ProjectileWeapon(MeleeWeapon):
     def __init__(self, cell, direction):
         super().__init__(cell)
 
         self.direction = direction
 
-    def on_update(self):
-        super().on_update()
-        # move on direction
+    @override
+    def on_update(self) -> List[GameAction]:
+        new_actions: List[GameAction] = [MoveAction(self, self.cell + self.direction)]
+        new_actions.extend(super().on_update())
+        return new_actions
