@@ -39,4 +39,4 @@ class WoodBow(RangeWeapon):
         self.absolute_physical_armor_piercing = 0
 
     def on_draw(self, animation):
-        animation.draw(self.cell, ")", color=Color.RED, z_buffer=5)
+        animation.draw(self.cell, ")", color=Color.BLUE, z_buffer=5)

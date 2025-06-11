@@ -45,7 +45,7 @@ class Projectile(Prey):
         return new_actions
 
     def on_draw(self, animation):
-        animation.draw(self.cell, "~", color=Color.RED, z_buffer=5)
+        animation.draw(self.cell, "~", color=Color.BLUE, z_buffer=5)
 
 
 class NPC(Prey):
