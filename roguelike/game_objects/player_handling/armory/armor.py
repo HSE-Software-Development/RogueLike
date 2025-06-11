@@ -1,4 +1,4 @@
-from roguelike.types import GameObject
+from roguelike.types import Color, GameObject
 
 
 class Armor(GameObject):
@@ -19,3 +19,6 @@ class OldRobe(Armor):
 
         self.physical_armor = 10.0
         self.magical_armor = 5.0
+
+    def on_draw(self, animation):
+        animation.draw(self.cell, "@", color=Color.RED, z_buffer=5)

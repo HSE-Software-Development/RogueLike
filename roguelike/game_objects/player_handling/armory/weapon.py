@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from __future__ import annotations
 from typing import List
-from roguelike.game_objects.player_handling.pray import Pray
+from roguelike.game_objects.player_handling.prey import Prey
 from roguelike.types import GameAction, GameObject
 from roguelike.game_objects.player_handling.armory.armor import Armor
 from enum import Enum
@@ -95,9 +95,9 @@ class Weapon(GameObject):
             1.0,
         )
 
-    def hit(weapon: Weapon, objects: List[Pray]) -> List[GameAction]:
+    def hit(weapon: Weapon, objects: List[Prey]) -> List[GameAction]:
         if weapon.__is_attack_time():
-            for pray in objects:
-                damage = weapon.__calculate_damage(pray.armor)
-                pray.health -= damage
+            for Prey in objects:
+                damage = weapon.__calculate_damage(Prey.armor)
+                Prey.health -= damage
         return []

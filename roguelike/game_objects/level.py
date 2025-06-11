@@ -1,3 +1,6 @@
+from roguelike.game_objects.player_handling.armory.armor import OldRobe
+from roguelike.game_objects.player_handling.armory.range_weapons import WoodBow
+from roguelike.game_objects.player_handling.prey import Player
 from .room import Room
 from typing import override
 from enum import Enum
@@ -65,7 +68,15 @@ class Level(GameObject):
         self.connections: dict[int, list[int]] = {}
         self.connect_rooms()
 
-        self.rooms[0].add_object(ExampleObject(position=self.rooms[0].rect.center))
+        player_cell = self.rooms[0].rect.center
+        self.rooms[0].add_object(
+            Player(
+                cell=player_cell,
+                health=50,
+                armor=OldRobe(player_cell),
+                weapon=WoodBow(player_cell),
+            )
+        )
 
     def connect_rooms(self):
         gr = Graph(len(self.rooms))

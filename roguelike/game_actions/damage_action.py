@@ -1,5 +1,5 @@
 from roguelike.game_objects.player_handling.armory.weapon import Weapon
-from roguelike.game_objects.player_handling.pray import Pray
+from roguelike.game_objects.player_handling.prey import Prey
 from roguelike.game_objects.room import Room
 from roguelike.types import Cell, GameObject, GameAction
 from typing import Callable, override
@@ -27,7 +27,7 @@ class DamageAction(GameAction):
         for cell in self.cells:
             objects_in_cell = grid[cell]
             for obj in objects_in_cell:
-                if obj.is_deleted or obj.id == self.sender or not isinstance(obj, Pray):
+                if obj.is_deleted or obj.id == self.sender or not isinstance(obj, Prey):
                     continue
                 receivers.append(obj)
 

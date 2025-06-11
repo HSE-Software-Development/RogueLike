@@ -8,8 +8,6 @@ import time
 import os
 import curses
 
-from roguelike.game_objects.room import Room
-
 
 class Rect:
     def __init__(self, lt: Cell, rb: Cell):
@@ -142,7 +140,7 @@ class GameAction(ABC):
         pass
 
     @abstractmethod
-    def execute(self, room: Room) -> list[GameAction]:
+    def execute(self, room: "Room") -> list[GameAction]:
         pass
 
 

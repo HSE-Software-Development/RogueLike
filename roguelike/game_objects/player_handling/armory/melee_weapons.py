@@ -1,14 +1,11 @@
 from typing import List, override
-from roguelike.game_actions.affect_action import AffectAction
 from roguelike.game_actions.damage_action import DamageAction
 from roguelike.game_actions.move_action import MoveAction
-from roguelike.types import GameObject
 from roguelike.game_objects.player_handling.armory.weapon import (
     Weapon,
     WeaponAttackPattern,
 )
-from roguelike.game_objects.player_handling.pray import Pray
-from roguelike.types import Cell, GameAction
+from roguelike.types import Cell, Color, GameAction
 
 
 class MeleeWeapon(Weapon):
@@ -42,6 +39,9 @@ class WoodSword(MeleeWeapon):
         self.physical_damage = 10.0
         self.percentage_physical_armor_piercing = 0.0
         self.absolute_physical_armor_piercing = 0
+
+    def on_draw(self, animation):
+        animation.draw(self.cell, "!", color=Color.RED, z_buffer=5)
 
 
 class ProjectileWeapon(MeleeWeapon):

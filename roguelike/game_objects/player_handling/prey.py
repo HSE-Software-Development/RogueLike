@@ -1,8 +1,6 @@
 from typing import List, override
 from roguelike.game_actions.create_action import DeleteAction
 from roguelike.game_actions.move_action import (
-    MoveAction,
-    MoveManyAction,
     MoveWithChildrenAction,
 )
 from roguelike.game_objects.player_handling.armory.armor import Armor
@@ -10,13 +8,13 @@ from roguelike.game_objects.player_handling.armory.melee_weapons import (
     MeleeWeapon,
     ProjectileWeapon,
 )
-from roguelike.types import GameAction, GameObject
+from roguelike.types import Color, GameAction, GameObject
 from roguelike.game_objects.player_handling.armory.weapon import Weapon
 from roguelike.types import Cell
 from roguelike.keyboard import is_pressed
 
 
-class Pray(GameObject):
+class Prey(GameObject):
     def __init__(self, cell: Cell, health: int):
         super.__init__(cell)
 
@@ -32,7 +30,7 @@ class Pray(GameObject):
         return []
 
 
-class Projectile(Pray):
+class Projectile(Prey):
     def __init__(self, cell, health, direction):
         super().__init__(cell, health)
 
@@ -46,8 +44,11 @@ class Projectile(Pray):
             new_actions.extend(self.projectile.on_update())
         return new_actions
 
+    def on_draw(self, animation):
+        animation.draw(self.cell, "~", color=Color.RED, z_buffer=5)
 
-class NPC(Pray):
+
+class NPC(Prey):
     def __init__(self, cell: Cell, health: int, armor: Armor, weapon: Weapon):
         super().__init__(cell, health)
 
@@ -99,3 +100,6 @@ class Player(NPC):
         new_actions.append(super().on_update())
 
         return new_actions
+
+    def on_draw(self, animation):
+        animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)

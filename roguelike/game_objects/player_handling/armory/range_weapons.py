@@ -4,8 +4,8 @@ from roguelike.game_objects.player_handling.armory.weapon import (
     Weapon,
     WeaponAttackPattern,
 )
-from roguelike.game_objects.player_handling.pray import Projectile
-from roguelike.types import Cell, GameAction
+from roguelike.game_objects.player_handling.prey import Projectile
+from roguelike.types import Cell, Color, GameAction
 
 
 class RangeWeapon(Weapon):
@@ -37,3 +37,6 @@ class WoodBow(RangeWeapon):
         self.physical_damage = 15.0
         self.percentage_physical_armor_piercing = 0.0
         self.absolute_physical_armor_piercing = 0
+
+    def on_draw(self, animation):
+        animation.draw(self.cell, ")", color=Color.RED, z_buffer=5)
