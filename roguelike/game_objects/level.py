@@ -1,5 +1,6 @@
 from roguelike.game_objects.player_handling.armory.armor import OldRobe
 from roguelike.game_objects.player_handling.armory.range_weapons import WoodBow
+from roguelike.game_objects.player_handling.armory.melee_weapons import WoodSword
 from roguelike.game_objects.player_handling.prey import Player
 from .room import Room
 from typing import override
@@ -8,7 +9,6 @@ from roguelike.types import Cell, Rect, Animation, GameObject, Color
 from sklearn.cluster import KMeans
 from roguelike.utils.mst import Graph
 from roguelike.utils.bfs import bfs_shortest_path
-from .example_object import ExampleObject
 import random
 import numpy as np
 
@@ -74,7 +74,8 @@ class Level(GameObject):
                 cell=player_cell,
                 health=50,
                 armor=OldRobe(player_cell),
-                weapon=WoodBow(player_cell),
+                # weapon=WoodBow(player_cell),
+                weapon=WoodSword(player_cell),
             )
         )
 

@@ -128,7 +128,7 @@ class GameObject(ABC):
 
     @abstractmethod
     def on_update(self) -> list[GameAction]:
-        pass
+        return []
 
     @abstractmethod
     def on_draw(self, animation: Animation):
@@ -145,20 +145,20 @@ class GameAction(ABC):
 
 
 class Color(Enum):
-    # RED = 31
-    # GREEN = 32
-    # YELLOW = 33
-    # BLUE = 34
-    # PURPLE = 35
-    # CYAN = 36
-    # WHITE = 37
-    RED = curses.COLOR_RED
-    GREEN = curses.COLOR_GREEN
-    YELLOW = curses.COLOR_YELLOW
-    BLUE = curses.COLOR_BLUE
-    PURPLE = curses.COLOR_MAGENTA
-    CYAN = curses.COLOR_CYAN
-    WHITE = curses.COLOR_WHITE
+    RED = 31
+    GREEN = 32
+    YELLOW = 33
+    BLUE = 34
+    PURPLE = 35
+    CYAN = 36
+    WHITE = 37
+    # RED = curses.COLOR_RED
+    # GREEN = curses.COLOR_GREEN
+    # YELLOW = curses.COLOR_YELLOW
+    # BLUE = curses.COLOR_BLUE
+    # PURPLE = curses.COLOR_MAGENTA
+    # CYAN = curses.COLOR_CYAN
+    # WHITE = curses.COLOR_WHITE
 
 
 class Animation:
@@ -174,7 +174,6 @@ class Animation:
 
     def __init__(
         self,
-        stdscr: curses.window,
         margin_x: int = 5,
         margin_y: int = 2,
         width: int = 150,
@@ -191,10 +190,9 @@ class Animation:
 
         self.gm = GameManager(width=width, height=height, num_of_levels=10)
         self.text = ""
-        self.stdscr = stdscr
 
-        for color in Color:
-            curses.init_pair(color.value, color.value, curses.COLOR_BLACK)
+        # for color in Color:
+        #     curses.init_pair(color.value, color.value, curses.COLOR_BLACK)
 
     def draw(
         self, cell: Cell, symbol: str, color: Color = Color.WHITE, z_buffer: int = 0
@@ -208,34 +206,36 @@ class Animation:
         self.text = text
 
     def _clear(self):
+        os.system("clear")
         self.animation = [
             [Animation.Symbol(" ") for _ in range(0, self.rect.right + 1)]
             for _ in range(0, self.rect.bottom + 1)
         ]
 
     def _render(self):
-        # os.system("clear")
 
-        for i, row in enumerate(self.animation):
-            # self.stdscr.addstr(i, 0, "".join(str(symbol) for symbol in row) + "\n")
-            for j, symbol in enumerate(row):
-                self.stdscr.addstr(
-                    i, j, symbol.char, curses.color_pair(symbol.color.value)
-                )
-            # print("".join(str(symbol) for symbol in row))
+        for row in self.animation:
+            print("".join(str(symbol) for symbol in row))
+
+        # for i, row in enumerate(self.animation):
+        #     # self.stdscr.addstr(i, 0, "".join(str(symbol) for symbol in row) + "\n")
+        #     for j, symbol in enumerate(row):
+        #         self.stdscr.addstr(
+        #             i, j, symbol.char, curses.color_pair(symbol.color.value)
+        #         )
+        # print("".join(str(symbol) for symbol in row))
         # print(self.text)
-        self.stdscr.refresh()  # Обновляем экран
-        self.stdscr.getch()  # Ждём нажатия клавиши
+        # self.stdscr.refresh()  # Обновляем экран
+        # self.stdscr.getch()  # Ждём нажатия клавиши
 
     def _job(self):
-
         self.gm.init()
         while True:
             self.gm.on_update()
             self.gm.on_draw(self)
             self._render()
-            self._clear()
             time.sleep(0.05)
+            self._clear()
 
     def _start(self):
         self.t = threading.Thread(target=self._job)

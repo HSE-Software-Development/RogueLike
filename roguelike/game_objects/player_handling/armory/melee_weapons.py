@@ -40,8 +40,14 @@ class WoodSword(MeleeWeapon):
         self.percentage_physical_armor_piercing = 0.0
         self.absolute_physical_armor_piercing = 0
 
+    def init(self):
+        pass
+
     def on_draw(self, animation):
         animation.draw(self.cell, "!", color=Color.BLUE, z_buffer=5)
+
+    def on_update(self):
+        return []
 
 
 class ProjectileWeapon(MeleeWeapon):

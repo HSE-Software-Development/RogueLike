@@ -16,11 +16,11 @@ from roguelike.keyboard import is_pressed
 
 class Prey(GameObject):
     def __init__(self, cell: Cell, health: int):
-        super.__init__(cell)
+        super().__init__(cell)
 
         self.health = health
-        self.armor = (
-            Armor()
+        self.armor = Armor(
+            self.cell
         )  # совсем не важно, как ты ударишь, а важно, какой держишь удар
 
     @override
@@ -49,7 +49,7 @@ class Projectile(Prey):
 
 
 class NPC(Prey):
-    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: Weapon):
+    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: "Weapon"):
         super().__init__(cell, health)
 
         self.armor = armor
@@ -67,12 +67,8 @@ class NPC(Prey):
 
 
 class Player(NPC):
-    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: Weapon):
-        super().__init__(cell, health)
-
-        self.armor = armor
-        self.weapon = weapon
-
+    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: "Weapon"):
+        super().__init__(cell, health, armor=armor, weapon=weapon)
         self.children.append(self.armor)
         self.children.append(self.weapon)
 
@@ -97,9 +93,12 @@ class Player(NPC):
                 MoveWithChildrenAction(self, Cell(self.cell.x + 1, self.cell.y))
             )
 
-        new_actions.append(super().on_update())
+        new_actions.extend(super().on_update())
 
         return new_actions
 
     def on_draw(self, animation):
         animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)
+
+    def init(self):
+        pass

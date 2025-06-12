@@ -24,7 +24,8 @@ class MoveWithChildrenAction(GameAction):
         if room.validate_cell(self.cell):
             self.object.cell = self.cell
             for obj in self.object.children:
-                obj.cell = self.cell
+                if room.validate_cell(obj.cell):
+                    obj.cell = self.cell
         return []
 
 

@@ -3,8 +3,8 @@ from roguelike.keyboard import _listener
 import curses
 
 
-def main(stdscr):
-    animation = Animation(stdscr, width=140, height=35)
+def main():
+    animation = Animation(width=140, height=35)
     # animation = Animation(width=50, height=20)
 
     _listener.start()
@@ -20,5 +20,6 @@ def main(stdscr):
 
 
 if __name__ == "__main__":
-    curses.wrapper(main)
+    main()
+    # curses.wrapper(main)
     # main()

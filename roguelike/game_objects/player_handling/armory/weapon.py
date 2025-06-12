@@ -1,9 +1,9 @@
-from abc import abstractmethod
 from __future__ import annotations
+from abc import abstractmethod
 from typing import List
-from roguelike.game_objects.player_handling.prey import Prey
 from roguelike.types import GameAction, GameObject
 from roguelike.game_objects.player_handling.armory.armor import Armor
+from roguelike.keyboard import is_pressed
 from enum import Enum
 import time
 
@@ -108,9 +108,15 @@ class Weapon(GameObject):
             1.0,
         )
 
-    def hit(weapon: Weapon, objects: List[Prey]) -> List[GameAction]:
+    def hit(weapon: Weapon, objects: List["Prey"]) -> List[GameAction]:
         if weapon.__is_attack_time():
             for Prey in objects:
                 damage = weapon.__calculate_damage(Prey.armor)
                 Prey.health -= damage
         return []
+
+    def on_update(self):
+        return []
+
+    def on_draw(self, animation):
+        pass
