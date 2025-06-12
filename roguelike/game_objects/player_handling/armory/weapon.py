@@ -47,6 +47,19 @@ class Weapon(GameObject):
         self.percentage_magical_armor_piercing = percentage_magical_armor_piercing
         self.absolute_magical_armor_piercing = absolute_magical_armor_piercing
 
+    def set_same(self, weapon: Weapon):
+        self.physical_damage = weapon.physical_damage
+        self.percentage_physical_armor_piercing = (
+            weapon.percentage_physical_armor_piercing
+        )
+        self.absolute_physical_armor_piercing = weapon.absolute_physical_armor_piercing
+
+        self.magical_damage = weapon.magical_damage
+        self.percentage_magical_armor_piercing = (
+            weapon.percentage_magical_armor_piercing
+        )
+        self.absolute_magical_armor_piercing = weapon.absolute_magical_armor_piercing
+
     def set_physical_damage_params(
         self,
         physical_damage,

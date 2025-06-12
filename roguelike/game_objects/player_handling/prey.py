@@ -34,14 +34,14 @@ class Projectile(Prey):
     def __init__(self, cell, health, direction):
         super().__init__(cell, health)
 
-        self.projectile = ProjectileWeapon(cell, direction)
+        self.projectile_weapon = ProjectileWeapon(cell, direction)
 
     @override
     def on_update(self) -> List[GameAction]:
         new_actions: GameAction = []
         new_actions.extend(super().on_update())
         if not self.is_deleted:
-            new_actions.extend(self.projectile.on_update())
+            new_actions.extend(self.projectile_weapon.on_update())
         return new_actions
 
     def on_draw(self, animation):

@@ -22,11 +22,9 @@ class RangeWeapon(Weapon):
         if self.__is_attack_time():
             new_actions: List[GameAction] = []
             for direction in self.directions:
-                new_actions.append(
-                    CreateAction(
-                        Projectile(self.cell, self.projectile_health, direction)
-                    )
-                )
+                projectileObj = Projectile(self.cell, self.projectile_health, direction)
+                projectileObj.projectile_weapon.set_same(self)
+                new_actions.append(CreateAction(projectileObj))
 
 
 class WoodBow(RangeWeapon):
