@@ -1,11 +1,16 @@
 from abc import ABC, abstractmethod
-from roguelike.types import Cell, Color
+from roguelike.types import Cell, Color, Effect
 
 
 class IAnimation(ABC):
     @abstractmethod
     def draw(
-        self, cell: Cell, char: str, color: Color = Color.WHITE, z_buffer: int = 0
+        self,
+        cell: Cell,
+        char: str,
+        color: Color = Color.WHITE,
+        effects: list[Effect] = [],
+        z_buffer: int = 0,
     ):
         pass
 

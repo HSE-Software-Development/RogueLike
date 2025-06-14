@@ -1,6 +1,6 @@
 from .npc import NPC
 from roguelike.game_objects.armor import Armor
-from roguelike.types import Cell, Color
+from roguelike.types import Cell, Color, Effect
 from roguelike.interfaces import *
 from roguelike.game_objects.weapons import Weapon
 from roguelike.game_actions import MoveAction
@@ -39,4 +39,6 @@ class Player(NPC):
         return new_actions
 
     def on_draw(self, animation):
-        animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)
+        animation.draw(
+            self.cell, "8", color=Color.RED, effects=[Effect.BLINK], z_buffer=5
+        )

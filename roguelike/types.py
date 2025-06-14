@@ -18,6 +18,14 @@ class Color(Enum):
     BLACK_GREEN = (11, curses.COLOR_BLACK, curses.COLOR_GREEN)
 
 
+class Effect(Enum):
+    BOLD = curses.A_BOLD
+    ITALIC = curses.A_ITALIC
+    DIM = curses.A_DIM
+    BLINK = curses.A_BLINK
+    UNDERLINE = curses.A_UNDERLINE
+
+
 class Cell:
 
     def __init__(self, x: int = 0, y: int = 0):

@@ -1,7 +1,7 @@
 from roguelike.interfaces import IAnimation
 from typing import Any, override
 from pydantic import BaseModel
-from roguelike.types import Cell, Color
+from roguelike.types import Cell, Color, Effect
 import curses
 
 
@@ -9,6 +9,7 @@ class Pixel(BaseModel):
     char: str
     color: Color = Color.WHITE
     z_buffer: int = -1
+    effects: list[Effect] = []
 
     def __str__(self):
         return f"\033[{self.color.value}m{self.char}\033[0m"
@@ -43,7 +44,9 @@ class Animation(IAnimation):
         ]
 
     @override
-    def draw(self, cell, char, color=Color.WHITE, z_buffer=0):
+    def draw(
+        self, cell, char, color=Color.WHITE, effects: list[Effect] = [], z_buffer=0
+    ):
         if cell.x < 0 or cell.y < 0 or cell.x >= self._width or cell.y >= self._height:
             return
 
@@ -53,6 +56,7 @@ class Animation(IAnimation):
             pixel.z_buffer = z_buffer
             pixel.char = char
             pixel.color = color
+            pixel.effects = effects
 
     @override
     def print(self, text, color: Color = Color.WHITE):
@@ -62,9 +66,12 @@ class Animation(IAnimation):
         for y in range(self._margin_y + self._height):
             for x in range(self._margin_x + self._width):
                 pixel = self._canvas[y][x]
-                self.stdscr.addstr(
-                    y, x, pixel.char, curses.color_pair(pixel.color.value[0])
-                )
+
+                code = curses.color_pair(pixel.color.value[0])
+                for effect in pixel.effects:
+                    code |= effect.value
+
+                self.stdscr.addstr(y, x, pixel.char, code)
                 # print(str(pixel), end="")
             # print()
 
