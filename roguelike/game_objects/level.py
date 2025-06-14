@@ -1,4 +1,4 @@
-from roguelike.interfaces import IGameObject, IAnimation, IGameAction, IKeyboard
+from roguelike.interfaces import *
 from roguelike.types import Rect, Cell, Color
 from enum import Enum
 import random
@@ -6,14 +6,12 @@ from .room import Room
 from roguelike.utils.mst import Graph
 from roguelike.utils.bfs import bfs_shortest_path
 from sklearn.cluster import KMeans
-from typing import override
+from typing import override, Optional
 import numpy as np
+from roguelike.game_objects.prey import Player
 
 
-class Level(IGameObject):
-    """
-    Represents a level in the game.
-    """
+class Level(ILevel, IGameObject):
 
     class LevelType(Enum):
         START = "start"
@@ -30,6 +28,7 @@ class Level(IGameObject):
         self.rect = rect
         self.difficulty = difficulty
         self.level_type = level_type
+        self.player: Optional[Player] = None
 
     @override
     def on_init(self):
@@ -51,28 +50,29 @@ class Level(IGameObject):
             weights=[weight for _, weight in num_and_weight],
             k=1,
         )[0]
-        self.num_of_rooms = 10
+        self.num_of_rooms = 7
 
         self.margin = 1
         self.rooms: list[Room] = []
         self.generate_rooms(self.num_of_rooms)
-        self.connections: dict[int, list[int]] = {}
+
+        self.connections: list[list[int]] = [[] for _ in range(len(self.rooms))]
         self.connect_rooms()
 
-        from roguelike.game_objects.prey import Player
-        from roguelike.game_objects.armor import Armor
-        from roguelike.game_objects.weapons import Weapon
+        # from roguelike.game_objects.prey import Player
+        # from roguelike.game_objects.armor import Armor
+        # from roguelike.game_objects.weapons import Weapon
 
-        self.rooms[0].add_object(
-            Player(
-                cell=self.rooms[0].rect.center,
-                health=100,
-                armor=Armor(cell=self.rooms[0].rect.center),
-                weapon=Weapon(
-                    cell=self.rooms[0].rect.center
-                ),  # Replace with actual weapon object
-            )
-        )
+        # self.rooms[0].add_object(
+        #     Player(
+        #         cell=self.rooms[0].rect.center,
+        #         health=100,
+        #         armor=Armor(cell=self.rooms[0].rect.center),
+        #         weapon=Weapon(
+        #             cell=self.rooms[0].rect.center
+        #         ),  # Replace with actual weapon object
+        #     )
+        # )
 
     def no_collision(self, rect: Rect) -> bool:
         if not self.rect.is_inside(rect.lt) or not self.rect.is_inside(rect.rb):
@@ -94,10 +94,6 @@ class Level(IGameObject):
 
         edges = gr.kruskal_mst()
         for u, v in edges:
-            if u not in self.connections:
-                self.connections[u] = []
-            if v not in self.connections:
-                self.connections[v] = []
             self.connections[u].append(v)
             self.connections[v].append(u)
 
@@ -106,16 +102,48 @@ class Level(IGameObject):
     def generate_roads(self, edges: list[tuple[int, int]]):
         self.roads = []
 
-        def get_nearest_door(room1: Room, room2: Room) -> Cell:
-            center = room2.rect.center
-            doors = [
-                Cell(room1.rect.center.x, room1.rect.top),
-                Cell(room1.rect.center.x, room1.rect.bottom),
-                Cell(room1.rect.left, room1.rect.center.y),
-                Cell(room1.rect.right, room1.rect.center.y),
-            ]
+        all_doors_cells: list[Cell] = []
 
-            return min(doors, key=lambda door: door.distance(center))
+        def get_nearest_doors(room1: Room, room2: Room) -> tuple[Cell, Cell]:
+            # doors1 = [
+            #     Cell(room1.rect.center.x, room1.rect.top),
+            #     Cell(room1.rect.center.x, room1.rect.bottom),
+            #     Cell(room1.rect.left, room1.rect.center.y),
+            #     Cell(room1.rect.right, room1.rect.center.y),
+            # ]
+            # doors2 = [
+            #     Cell(room2.rect.center.x, room2.rect.top),
+            #     Cell(room2.rect.center.x, room2.rect.bottom),
+            #     Cell(room2.rect.left, room2.rect.center.y),
+            #     Cell(room2.rect.right, room2.rect.center.y),
+            # ]
+
+            def get_doors(room: Room) -> list[Cell]:
+                doors = []
+                for x in range(room.rect.left + 3, room.rect.right - 3 + 1):
+                    doors.append(Cell(x, room.rect.top))
+                    doors.append(Cell(x, room.rect.bottom))
+                for y in range(room.rect.top + 3, room.rect.bottom - 3 + 1):
+                    doors.append(Cell(room.rect.left, y))
+                    doors.append(Cell(room.rect.right, y))
+
+                doors = [door for door in doors if door not in all_doors_cells]
+                return doors
+
+            doors1 = get_doors(room1)
+            doors2 = get_doors(room2)
+
+            minDist = 10000
+            res1: Cell = Cell()
+            res2: Cell = Cell()
+            for door1 in doors1:
+                for door2 in doors2:
+                    if door1.distance(door2) < minDist:
+                        minDist = door1.distance(door2)
+                        res1 = door1
+                        res2 = door2
+
+            return (res1, res2)
 
         for u, v in edges:
             room_u = self.rooms[u]
@@ -144,21 +172,29 @@ class Level(IGameObject):
                     for y in range(rect.top, rect.bottom + 1):
                         visited[x][y] = True
 
-            door1 = get_nearest_door(room_u, room_v)
-            # room_u.add_door(door1)
+            door1, door2 = get_nearest_doors(room_u, room_v)
+            len_room_u = len(room_u.doors)
+            len_room_v = len(room_v.doors)
+            room_u.add_door(door1, v, len_room_v)
+            room_v.add_door(door2, u, len_room_u)
+
             starts = []
             for x in range(door1.x - 1, door1.x + 2):
                 for y in range(door1.y - 1, door1.y + 2):
+                    cell = Cell(x, y)
                     visited[x][y] = True
-                    starts.append(Cell(x, y))
+                    if (door1.x == x or door1.y == y) and room_u.rect.is_outside(cell):
+                        starts.append(Cell(x, y))
+                    all_doors_cells.append(cell)
 
-            door2 = get_nearest_door(room_v, room_u)
-            # room_v.add_door(door2)
             ends = []
             for x in range(door2.x - 1, door2.x + 2):
                 for y in range(door2.y - 1, door2.y + 2):
+                    cell = Cell(x, y)
                     visited[x][y] = False
-                    ends.append(Cell(x, y))
+                    if (door2.x == x or door2.y == y) and room_v.rect.is_outside(cell):
+                        ends.append(Cell(x, y))
+                    all_doors_cells.append(cell)
 
             path = bfs_shortest_path(starts, ends, visited)
             print(f"Path from {door1} to {door2}: {path}")
@@ -167,10 +203,12 @@ class Level(IGameObject):
 
     def generate_rooms(self, num_of_rooms: int):
         self.points = []
-        for _ in range(num_of_rooms * 4):
-            x = random.randint(self.rect.left, self.rect.right)
-            y = random.randint(self.rect.top, self.rect.bottom)
+        for _ in range(num_of_rooms * 3):
+            rect = self.rect.with_margin(-5)
+            x = random.randint(rect.left, rect.right)
+            y = random.randint(rect.top, rect.bottom)
             self.points.append([x, y])
+
         print(f"Points: {self.points}")
         print(f"Number of rooms: {num_of_rooms}")
         print(self.rect)
@@ -178,7 +216,7 @@ class Level(IGameObject):
         kmeans = KMeans(n_clusters=num_of_rooms, random_state=0).fit(self.points)
         kmeans.fit(np.array(self.points))
         self.centers = [
-            (int(center[0]), int(center[1])) for center in kmeans.cluster_centers_
+            [int(center[0]), int(center[1])] for center in kmeans.cluster_centers_
         ]
         print(f"Centers: {self.centers}")
 
@@ -186,17 +224,28 @@ class Level(IGameObject):
         min_width = max(self.rect.width // 10, 6)
         max_height = int(self.rect.height / 2.5)
         min_height = max(self.rect.height // 10, 8)
-        max_tries = 20
+        max_tries = 10
         for center in self.centers:
-            for _ in range(max_tries):
-                width = random.randint(min_width, max_width)
-                height = random.randint(min_height, max_height)
+            for t in range(max_tries):
+                if t < max_tries // 2:
+                    width = random.randint(min_width, max_width)
+                    height = random.randint(min_height, max_height)
+                else:
+                    center[0] = random.randint(self.rect.left + 1, self.rect.right - 1)
+                    center[1] = random.randint(
+                        self.rect.top + 1,
+                        self.rect.bottom - 1,
+                    )
+                    width = min_width
+                    height = min_height
+
                 lt = Cell(center[0] - width // 2, center[1] - height // 2)
                 rb = Cell(center[0] + width // 2, center[1] + height // 2)
                 rect = Rect(lt=lt, rb=rb)
 
                 if self.no_collision(rect):
                     room = Room(rect=rect)
+                    room.set_index(len(self.rooms))
                     self.rooms.append(room)
                     break
                 else:
@@ -206,33 +255,60 @@ class Level(IGameObject):
     @override
     def on_draw(self, animation: IAnimation):
 
-        # animation.print(self.num_of_rooms)
+        animation.print(self.num_of_rooms)
         for room in self.rooms:
             room.on_draw(animation)
 
         for x in range(self.rect.left, self.rect.right + 1):
-            animation.draw(Cell(x, self.rect.top), "#", z_buffer=0)
+            animation.draw(
+                Cell(x, self.rect.top), " ", color=Color.BLACK_YELLOW, z_buffer=0
+            )
 
         for x in range(self.rect.left, self.rect.right + 1):
-            animation.draw(Cell(x, self.rect.bottom), "#", z_buffer=0)
+            animation.draw(
+                Cell(x, self.rect.bottom), " ", color=Color.BLACK_YELLOW, z_buffer=0
+            )
 
         for y in range(self.rect.top, self.rect.bottom + 1):
-            animation.draw(Cell(self.rect.left, y), "#", z_buffer=0)
+            animation.draw(
+                Cell(self.rect.left, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
+            )
 
         for y in range(self.rect.top, self.rect.bottom + 1):
-            animation.draw(Cell(self.rect.right, y), "#", z_buffer=0)
+            animation.draw(
+                Cell(self.rect.right, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
+            )
 
         # for center in self.centers:
-        #     animation.draw(Cell(center[0], center[1]), "C", z_buffer=2)
+        #     animation.draw(Cell(center[0], center[1]), "C", color=Color.RED, z_buffer=2)
 
         for road in self.roads:
             for point in road:
-                animation.draw(point, "@", color=Color.GREEN, z_buffer=1)
+                animation.draw(point, " ", color=Color.BLACK_GREEN, z_buffer=5)
         # for point in self.points:
         #     animation.draw(Cell(point[0], point[1]), "P", z_buffer=2)
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
+        actions: list[IGameAction] = []
         for room in self.rooms:
-            room.on_update(keyboard)
-        return []
+            actions.extend(room.on_update(keyboard))
+
+        for action in actions:
+            if isinstance(action, ILevelGameAction):
+                action.level_handler(self)
+
+        return actions
+
+    def set_player(self, player: Player):
+        self.player = player
+        if self.rooms:
+            self.rooms[0].set_player(player, -1)
+
+    @override
+    def move_player(self, prev_room: int, next_room: int, door_index: int):
+        if self.player is None:
+            return
+
+        self.rooms[prev_room].remove_player(self.player)
+        self.rooms[next_room].set_player(self.player, door_index)

@@ -1,16 +1,21 @@
 from __future__ import annotations
 from pydantic import BaseModel
 from enum import Enum
+import curses
 
 
 class Color(Enum):
-    RED = 31
-    GREEN = 32
-    YELLOW = 33
-    BLUE = 34
-    PURPLE = 35
-    CYAN = 36
-    WHITE = 37
+    RED = (1, curses.COLOR_RED, curses.COLOR_BLACK)
+    GREEN = (2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    YELLOW = (3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    BLUE = (4, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    PURPLE = (5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    CYAN = (6, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    WHITE = (7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    BLACK_WHITE = (8, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    BLACK_YELLOW = (9, curses.COLOR_BLACK, curses.COLOR_YELLOW)
+    BLACK_RED = (10, curses.COLOR_BLACK, curses.COLOR_RED)
+    BLACK_GREEN = (11, curses.COLOR_BLACK, curses.COLOR_GREEN)
 
 
 class Cell:
@@ -94,7 +99,23 @@ class Rect:
     def is_inside(self, cell: Cell):
         return cell.is_inside(self.lt, self.rb)
 
-    def is_intersect(self, other: Rect):
+    def is_outside(self, cell: Cell):
+        return (
+            cell.x < self.left
+            or cell.x > self.right
+            or cell.y < self.top
+            or cell.y > self.bottom
+        )
+
+    def is_on_edge(self, cell: Cell):
+        return (
+            (cell.x == self.left or cell.x == self.right)
+            and self.top <= cell.y <= self.bottom
+            or (cell.y == self.top or cell.y == self.bottom)
+            and self.left <= cell.x <= self.right
+        )
+
+    def is_intersect(self, other: Rect) -> bool:
         return not (
             self.left > other.right
             or self.right < other.left

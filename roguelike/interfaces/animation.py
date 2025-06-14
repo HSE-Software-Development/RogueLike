@@ -10,5 +10,5 @@ class IAnimation(ABC):
         pass
 
     @abstractmethod
-    def print(self, text: str):
+    def print(self, text):
         pass

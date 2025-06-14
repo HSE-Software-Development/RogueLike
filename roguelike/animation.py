@@ -2,7 +2,7 @@ from roguelike.interfaces import IAnimation
 from typing import Any, override
 from pydantic import BaseModel
 from roguelike.types import Cell, Color
-import os
+import curses
 
 
 class Pixel(BaseModel):
@@ -24,7 +24,8 @@ class Text(BaseModel):
 
 class Animation(IAnimation):
 
-    def __init__(self, margin_x: int, margin_y: int, width: int, height: int):
+    def __init__(self, stdscr, margin_x: int, margin_y: int, width: int, height: int):
+        self.stdscr = stdscr
         self._width = width
         self._height = height
         self._margin_x = margin_x
@@ -32,6 +33,8 @@ class Animation(IAnimation):
 
         self._canvas = self._clean_canvas()
         self._text: list[Text] = []
+        for color in Color:
+            curses.init_pair(color.value[0], color.value[1], color.value[2])
 
     def _clean_canvas(self) -> list[list[Pixel]]:
         return [
@@ -52,20 +55,26 @@ class Animation(IAnimation):
             pixel.color = color
 
     @override
-    def print(self, text: str, color: Color = Color.WHITE):
-        self._text.append(Text(text=text, color=color))
+    def print(self, text, color: Color = Color.WHITE):
+        self._text.append(Text(text=str(text), color=color))
 
     def render(self):
         for y in range(self._margin_y + self._height):
             for x in range(self._margin_x + self._width):
                 pixel = self._canvas[y][x]
-                print(str(pixel), end="")
-            print()
+                self.stdscr.addstr(
+                    y, x, pixel.char, curses.color_pair(pixel.color.value[0])
+                )
+                # print(str(pixel), end="")
+            # print()
 
-        print("Text Output:")
-        for text in self._text:
-            print(str(text))
+        self.stdscr.refresh()
+        # print("Text Output:")
+        # for text in self._text:
+        #     print(str(text))
 
     def clear(self):
-        os.system("cls" if os.name == "nt" else "clear")
+        # os.system("clear")
+        # print("\033[H\033[J", end="")
         self._canvas = self._clean_canvas()
+        self._text = []

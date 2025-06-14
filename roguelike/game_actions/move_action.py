@@ -10,7 +10,7 @@ class MoveAction(IRoomGameAction):
 
     @override
     def room_handler(self, room: IRoom):
-        if room.validate_cell(self.object.cell):
+        if room.validate_cell(self.cell):
             self.object.cell = self.cell
             for child in self.object.children:
                 child.cell = self.cell

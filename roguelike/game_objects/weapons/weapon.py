@@ -109,7 +109,7 @@ class Weapon(IGameObjectWithPosition):
         )
 
     def hit(self, objects: List[IGameObjectWithPosition]):
-        from roguelike.game_objects.prey.prey import Prey
+        from roguelike.game_objects.prey import Prey
 
         if self._is_attack_time():
             for obj in objects:
