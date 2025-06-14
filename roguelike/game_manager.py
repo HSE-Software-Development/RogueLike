@@ -59,7 +59,7 @@ class GameManager:
             self._draw()
             self._animation.render()
 
-            curses.napms(100)
+            curses.napms(50)
             self._animation.clear()
 
     def run(self):

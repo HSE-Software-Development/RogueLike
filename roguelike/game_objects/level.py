@@ -191,9 +191,10 @@ class Level(ILevel, IGameObject):
             for x in range(door2.x - 1, door2.x + 2):
                 for y in range(door2.y - 1, door2.y + 2):
                     cell = Cell(x, y)
-                    visited[x][y] = False
+                    visited[x][y] = True
                     if (door2.x == x or door2.y == y) and room_v.rect.is_outside(cell):
                         ends.append(Cell(x, y))
+                        visited[x][y] = False
                     all_doors_cells.append(cell)
 
             path = bfs_shortest_path(starts, ends, visited)
