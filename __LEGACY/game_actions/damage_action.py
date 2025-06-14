@@ -14,7 +14,7 @@ class DamageAction(IRoomGameAction):
 
     @override
     def room_handler(self, room: IRoom):
-        from roguelike.game_objects.player_handling.prey import Prey
+        from roguelike.game_objects.
 
         grid: dict[Cell, list[GameObject]] = {}
         for obj in room.objects:

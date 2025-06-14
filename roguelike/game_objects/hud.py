@@ -1,0 +1,227 @@
+from roguelike.interfaces import *
+from roguelike.types import Cell, Rect, Color, Effect
+from typing import override, Optional
+from enum import Enum
+
+
+class Item(Enum):
+    SWORD = "sword"
+    BOW = "bow"
+    POTION = "potion"
+    EMPTY = "empty"
+
+
+HEART = """\
+ **  **
+********
+ ******
+   **
+"""
+
+SWORD = """\
+   *
+   *
+  ~~~
+   #
+"""
+
+BOW = """\
+  |%
+  | $
+  | $
+  |%
+"""
+
+POTION = """\
+   _
+   | 
+  / \\
+  \\ /
+"""
+
+CELL_WIDTH = 9
+CELL_HEIGHT = 6
+
+
+class HUD(IGameObject):
+    def __init__(self):
+        self.inventory = [
+            Item.SWORD,
+            Item.BOW,
+            Item.EMPTY,
+            Item.POTION,
+            Item.EMPTY,
+        ]
+        self.targeted_item: int = 0
+
+    def set_target(self, index: int):
+        self.targeted_item = min(index, len(self.inventory) - 1)
+
+    def draw_heart(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+        dead: bool = False,
+    ):
+        for y, line in enumerate(HEART.splitlines()):
+            for x, char in enumerate(line):
+                if char == "*":
+                    if dead:
+                        animation.draw(
+                            Cell(cell.x + x, cell.y + y),
+                            "#",
+                            color=Color.RED,
+                            z_buffer=5,
+                            effects=[Effect.BLINK],
+                        )
+                    else:
+                        animation.draw(
+                            Cell(cell.x + x, cell.y + y),
+                            " ",
+                            color=Color.BLACK_RED,
+                            z_buffer=5,
+                            effects=[],
+                        )
+
+    def draw_sword(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(SWORD.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    if char == "*":
+                        animation.draw(
+                            Cell(cell.x + x, cell.y + y),
+                            " ",
+                            color=Color.BLACK_YELLOW,
+                            z_buffer=5,
+                        )
+                    else:
+                        animation.draw(
+                            Cell(cell.x + x, cell.y + y),
+                            char,
+                            color=Color.YELLOW,
+                            z_buffer=5,
+                            effects=[Effect.BOLD],
+                        )
+
+    def draw_bow(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(BOW.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.YELLOW,
+                        z_buffer=5,
+                        effects=[Effect.BOLD],
+                    )
+
+    def draw_potion(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(POTION.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.YELLOW,
+                        z_buffer=5,
+                        effects=[Effect.BOLD],
+                    )
+
+    def draw_inventory_cell(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+        item: Item,
+        is_target: bool = False,
+    ):
+        def draw_rect(rect: Rect, fill: bool = False):
+            for y in range(rect.lt.y, rect.rb.y + 1):
+                for x in range(rect.lt.x, rect.rb.x + 1):
+                    if fill or (
+                        x == rect.lt.x
+                        or x == rect.rb.x
+                        or y == rect.lt.y
+                        or y == rect.rb.y
+                    ):
+                        if is_target:
+                            animation.draw(
+                                Cell(x, y),
+                                " ",
+                                color=Color.BLACK_GREEN,
+                                z_buffer=6,
+                            )
+                        else:
+                            animation.draw(
+                                Cell(x, y),
+                                " ",
+                                color=Color.BLACK_WHITE,
+                                z_buffer=5,
+                            )
+
+        draw_rect(
+            Rect(
+                Cell(cell.x, cell.y),
+                Cell(cell.x + CELL_WIDTH - 1, cell.y + CELL_HEIGHT - 1),
+            )
+        )
+        cell = Cell(cell.x + 1, cell.y + 1)
+        if item == Item.SWORD:
+            self.draw_sword(animation, cell)
+        elif item == Item.BOW:
+            self.draw_bow(animation, cell)
+        elif item == Item.POTION:
+            self.draw_potion(animation, cell)
+
+    def draw_inventory(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for i, item in enumerate(self.inventory):
+            self.draw_inventory_cell(
+                animation=animation,
+                cell=Cell(cell.x + i * (CELL_WIDTH - 1), cell.y + 0),
+                item=item,
+                is_target=(i == self.targeted_item),
+            )
+
+    @override
+    def on_draw(self, animation: IAnimation):
+        for i in range(5):
+            if i > 2:
+                self.draw_heart(
+                    animation=animation,
+                    cell=Cell(i * 10, 0),
+                    dead=True,
+                )
+            else:
+                self.draw_heart(
+                    animation=animation,
+                    cell=Cell(i * 10, 0),
+                    dead=False,
+                )
+        self.draw_inventory(animation, Cell(70, 0))
+
+    @override
+    def on_init(self):
+        pass
+
+    @override
+    def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
+        for i in range(len(self.inventory)):
+            if keyboard.is_pressed(str(i + 1)):
+                self.set_target(i)
+                return []
+        return []

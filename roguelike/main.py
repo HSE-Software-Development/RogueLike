@@ -18,7 +18,7 @@ def main(stdscr):
     game_manager = GameManager(
         stdscr,
         keyboard,
-        margin_x=10,
+        margin_x=4,
         margin_y=2,
         width=140,
         height=38,

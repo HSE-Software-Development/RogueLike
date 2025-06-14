@@ -39,6 +39,4 @@ class Player(NPC):
         return new_actions
 
     def on_draw(self, animation):
-        animation.draw(
-            self.cell, "8", color=Color.RED, effects=[Effect.BLINK], z_buffer=5
-        )
+        animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)

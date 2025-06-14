@@ -98,11 +98,11 @@ class Rect:
 
     @property
     def width(self) -> int:
-        return self.rb.x - self.lt.x
+        return self.rb.x - self.lt.x + 1
 
     @property
     def height(self) -> int:
-        return self.rb.y - self.lt.y
+        return self.rb.y - self.lt.y + 1
 
     def is_inside(self, cell: Cell):
         return cell.is_inside(self.lt, self.rb)

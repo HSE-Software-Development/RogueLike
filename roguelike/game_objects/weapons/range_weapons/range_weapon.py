@@ -21,7 +21,7 @@ class RangeWeapon(Weapon):
         if self._is_attack_time():
             new_actions: List[IGameAction] = []
             for direction in self.directions:
-                projectileObj = Projectile(self.cell, self.projectile_health, direction)
+                projectileObj = Projectile(cell=self.cell, health=self.projectile_health, direction=direction)
                 projectileObj.projectile_weapon.set_same(self)
                 new_actions.append(CreateAction(projectileObj))
             return new_actions
