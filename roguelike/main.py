@@ -1,25 +1,14 @@
-from roguelike.types import Animation
-from roguelike.keyboard import _listener
-import curses
+from .keyboard_manager import KeyboardManager
+from .game_manager import GameManager
 
 
 def main():
-    animation = Animation(width=140, height=35)
-    # animation = Animation(width=50, height=20)
+    keyboard = KeyboardManager()
+    game_manager = GameManager(keyboard, margin_x=10, margin_y=2)
 
-    _listener.start()
-    animation._start()
-
-    animation._stop()
-    _listener.join()
-
-    # print("hello")
-    # listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-    # listener.start()
-    # listener.join()
+    keyboard.run()
+    game_manager.run()
 
 
 if __name__ == "__main__":
     main()
-    # curses.wrapper(main)
-    # main()

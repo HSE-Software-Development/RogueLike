@@ -1,40 +1,53 @@
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import override
-from roguelike.types import Cell, GameObject, GameAction, Animation
+from roguelike.interfaces import IKeyboard
 from roguelike.game_objects import Level
+from roguelike.animation import Animation
 from roguelike.types import Rect, Cell
+import time
 
 
-class GameManager(GameObject):
-    def __init__(self, width: int = 150, height: int = 100, num_of_levels: int = 10):
-        rect = Rect(lt=Cell(0, 0), rb=Cell(width, height))
+class GameManager:
 
-        self.current_level = 0
-        self.levels: list[Level] = []
-        self.levels.append(
-            Level(rect=rect, level_type=Level.LevelType.START, difficulty=0.0)
+    def __init__(
+        self,
+        keyboard: IKeyboard,
+        margin_x: int = 0,
+        margin_y: int = 0,
+        width: int = 140,
+        height: int = 36,
+    ):
+        self._width = width
+        self._height = height
+        self._keyboard = keyboard
+        self._animation = Animation(
+            margin_x=margin_x, margin_y=margin_y, width=width, height=height
         )
-        for i in range(1, num_of_levels - 1):
-            difficulty = i / (num_of_levels - 2)
-            self.levels.append(
-                Level(
-                    rect=rect, level_type=Level.LevelType.COMMON, difficulty=difficulty
-                )
-            )
-        self.levels.append(
-            Level(rect=rect, level_type=Level.LevelType.FINISH, difficulty=1.0)
+        self._levels: list[Level] = []
+
+    def _init(self):
+        self._levels.append(
+            Level(rect=Rect(lt=Cell(0, 0), rb=Cell(self._width - 1, self._height - 1)))
         )
+        for level in self._levels:
+            level.on_init()
 
-    @override
-    def init(self):
-        for level in self.levels:
-            level.init()
+    def _update(self):
+        for level in self._levels:
+            level.on_update(self._keyboard)
 
-    @override
-    def on_draw(self, animation: Animation):
-        self.levels[self.current_level].on_draw(animation)
+    def _draw(self):
+        for level in self._levels:
+            level.on_draw(self._animation)
 
-    @override
-    def on_update(self):
-        self.levels[self.current_level].on_update()
+    def _game_loop(self):
+        self._init()
+        while True:
+            self._update()
+
+            self._animation.clear()
+            self._draw()
+            self._animation.render()
+
+            time.sleep(0.1)
+
+    def run(self):
+        self._game_loop()

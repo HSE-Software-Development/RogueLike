@@ -1,20 +1,19 @@
-from roguelike.interfaces import IGameObject, IAnimation, IGameAction, IKeyboard
-from roguelike.types import Rect, Cell, Color
-from enum import Enum
-import random
+from roguelike.game_objects.player_handling.armory.armor import OldRobe
+from roguelike.game_objects.player_handling.armory.range_weapons import WoodBow
+from roguelike.game_objects.player_handling.armory.melee_weapons import WoodSword
+from roguelike.game_objects.player_handling.prey import Player
 from .room import Room
+from typing import override
+from enum import Enum
+from roguelike.types import Cell, Rect, Animation, GameObject, Color
+from sklearn.cluster import KMeans
 from roguelike.utils.mst import Graph
 from roguelike.utils.bfs import bfs_shortest_path
-from sklearn.cluster import KMeans
-from typing import override
+import random
 import numpy as np
 
 
-class Level(IGameObject):
-    """
-    Represents a level in the game.
-    """
-
+class Level(GameObject):
     class LevelType(Enum):
         START = "start"
         FINISH = "finish"
@@ -31,8 +30,18 @@ class Level(IGameObject):
         self.difficulty = difficulty
         self.level_type = level_type
 
-    @override
-    def on_init(self):
+    def no_collision(self, rect: Rect) -> bool:
+        if not self.rect.is_inside(rect.lt) or not self.rect.is_inside(rect.rb):
+            return False
+
+        for room in self.rooms:
+            if rect.with_margin(margin=self.margin + 1).is_intersect(
+                room.rect.with_margin(margin=self.margin + 1)
+            ):
+                return False
+        return True
+
+    def init(self):
         b = 1.5
         k = self.difficulty - 0.5
 
@@ -59,31 +68,16 @@ class Level(IGameObject):
         self.connections: dict[int, list[int]] = {}
         self.connect_rooms()
 
-        from roguelike.game_objects.prey import Player
-        from roguelike.game_objects.armor import Armor
-        from roguelike.game_objects.weapons import Weapon
-
+        player_cell = self.rooms[0].rect.center
         self.rooms[0].add_object(
             Player(
-                cell=self.rooms[0].rect.center,
-                health=100,
-                armor=Armor(cell=self.rooms[0].rect.center),
-                weapon=Weapon(
-                    cell=self.rooms[0].rect.center
-                ),  # Replace with actual weapon object
+                cell=player_cell,
+                health=50,
+                armor=OldRobe(player_cell),
+                # weapon=WoodBow(player_cell),
+                weapon=WoodSword(player_cell),
             )
         )
-
-    def no_collision(self, rect: Rect) -> bool:
-        if not self.rect.is_inside(rect.lt) or not self.rect.is_inside(rect.rb):
-            return False
-
-        for room in self.rooms:
-            if rect.with_margin(margin=self.margin + 1).is_intersect(
-                room.rect.with_margin(margin=self.margin + 1)
-            ):
-                return False
-        return True
 
     def connect_rooms(self):
         gr = Graph(len(self.rooms))
@@ -145,7 +139,7 @@ class Level(IGameObject):
                         visited[x][y] = True
 
             door1 = get_nearest_door(room_u, room_v)
-            # room_u.add_door(door1)
+            room_u.add_door(door1)
             starts = []
             for x in range(door1.x - 1, door1.x + 2):
                 for y in range(door1.y - 1, door1.y + 2):
@@ -153,7 +147,7 @@ class Level(IGameObject):
                     starts.append(Cell(x, y))
 
             door2 = get_nearest_door(room_v, room_u)
-            # room_v.add_door(door2)
+            room_v.add_door(door2)
             ends = []
             for x in range(door2.x - 1, door2.x + 2):
                 for y in range(door2.y - 1, door2.y + 2):
@@ -204,7 +198,7 @@ class Level(IGameObject):
         print(f"Generated rooms: {len(self.rooms)}")
 
     @override
-    def on_draw(self, animation: IAnimation):
+    def on_draw(self, animation: Animation):
 
         # animation.print(self.num_of_rooms)
         for room in self.rooms:
@@ -232,7 +226,6 @@ class Level(IGameObject):
         #     animation.draw(Cell(point[0], point[1]), "P", z_buffer=2)
 
     @override
-    def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
+    def on_update(self):
         for room in self.rooms:
-            room.on_update(keyboard)
-        return []
+            room.on_update()

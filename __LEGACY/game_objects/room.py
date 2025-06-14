@@ -1,29 +1,23 @@
-from roguelike.interfaces import (
-    IGameAction,
-    IGameObject,
-    IAnimation,
-    IGameObjectWithPosition,
-    IRoomGameAction,
-    IRoom,
-    IKeyboard,
-)
-from roguelike.types import Cell, Rect, Color
+from roguelike.types import Cell, Rect
 from typing import override
+from roguelike.types import Animation, GameObject, GameAction, Color
+from roguelike.keyboard import is_pressed
 
 
-class Room(IRoom, IGameObject):
+class Room(GameObject):
 
     def __init__(self, rect: Rect):
-        self.objects: list[IGameObjectWithPosition] = []
+        self.objects: list[GameObject] = []
+        self.actions: list[GameAction] = []
         self.rect = rect
         self.doors: list[Cell] = []
 
     @override
-    def on_init(self):
+    def init(self):
         pass
 
     @override
-    def on_draw(self, animation: IAnimation):
+    def on_draw(self, animation: Animation):
         # if "k" in pressed():
         #     animation.print("K")
         # else:
@@ -50,35 +44,39 @@ class Room(IRoom, IGameObject):
                 animation.draw(Cell(x, y), ".", z_buffer=0)
 
         for obj in self.objects:
-            obj.on_draw(animation)
+            if not obj.is_deleted:
+                obj.on_draw(animation)
 
         # for door in self.doors:
         #     for x in range(door.x - 1, door.x + 2):
         #         for y in range(door.y - 1, door.y + 2):
         #             animation.draw(Cell(x, y), "D", z_buffer=2)
 
-    @override
     def validate_cell(self, cell: Cell) -> bool:
         return self.rect.is_inside(cell)
 
-    @override
-    def add_object(self, object: IGameObjectWithPosition):
+    def add_object(self, object: GameObject) -> bool:
         if not self.validate_cell(object.cell):
-            return
+            return False
         self.objects.append(object)
 
-    @override
-    def remove_object(self, object: IGameObjectWithPosition):
-        self.objects = [obj for obj in self.objects if obj != object]
+    def add_door(self, cell: Cell) -> bool:
+        return self.doors.append(cell)
 
     @override
-    def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
-        actions = []
+    def on_update(self) -> list[GameAction]:
         for obj in self.objects:
-            actions.extend(obj.on_update(keyboard))
+            if not obj.is_deleted:
+                self.actions.extend(obj.on_update())
 
-        for action in actions:
-            if isinstance(action, IRoomGameAction):
-                action.room_handler(self)
+        new_actions: list[GameAction] = []
+        for action in self.actions:
+            new_actions.extend(action.execute(self))
+            # new_actions.extend(self.execute_action(action))
+        self.actions = new_actions
 
-        return actions
+        if is_pressed("e"):
+            for door in self.doors:
+                pass
+
+        return new_actions

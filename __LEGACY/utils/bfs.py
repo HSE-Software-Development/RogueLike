@@ -3,8 +3,8 @@ from roguelike.types import Cell
 
 
 def bfs_shortest_path(
-    starts: list[Cell], ends: list[Cell], visited: dict[int, dict[int, bool]]
-) -> list[Cell] | None:
+    starts: list[Cell], ends: list[Cell], visited: list[list[bool]]
+) -> list[Cell]:
 
     queue = deque()
     for start in starts:
