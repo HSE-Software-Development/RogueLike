@@ -355,7 +355,7 @@ class Level(ILevel, IGameObject):
 
         for road in self.roads:
             for point in road:
-                animation.draw(point, " ", color=Color.BLACK_GREEN, z_buffer=5)
+                animation.draw(point, "@", color=Color.GREEN, z_buffer=5)
         # for point in self.points:
         #     animation.draw(Cell(point[0], point[1]), "P", z_buffer=2)
 

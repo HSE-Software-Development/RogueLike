@@ -77,9 +77,7 @@ class Room(IRoom, IGameObject):
             for x in range(door.x - 1, door.x + 2):
                 for y in range(door.y - 1, door.y + 2):
                     if self.rect.is_on_edge(Cell(x, y)):
-                        animation.draw(
-                            Cell(x, y), " ", color=Color.BLACK_GREEN, z_buffer=2
-                        )
+                        animation.draw(Cell(x, y), "@", color=Color.GREEN, z_buffer=2)
 
         for obj in self.objects:
             obj.on_draw(animation)
