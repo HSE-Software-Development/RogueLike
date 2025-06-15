@@ -7,6 +7,8 @@ from roguelike.game_objects.prey import Player
 from roguelike.game_objects.armor import Armor
 from roguelike.game_objects.weapons import Weapon
 from roguelike.game_objects import HUD
+from roguelike.game_objects import GameOver
+from roguelike.game_objects.game_over import GAMEOVER
 import curses
 from typing import override
 
@@ -31,6 +33,7 @@ class GameManager(IManager):
         )
         self.level_width = width
         self.level_height = height - 10
+        self.is_game_over = False
 
         self._player = Player(
             armor=Armor(Cell(0, 0)),
@@ -40,10 +43,11 @@ class GameManager(IManager):
         )
         self._cur_level_index = 0
         self._levels: list[Level] = []
+        self._game_over = GameOver()
         self._hud = HUD()
 
     def _init(self):
-        for _ in range(5):
+        for _ in range(3):
             self._levels.append(
                 Level(
                     rect=Rect(
@@ -58,37 +62,50 @@ class GameManager(IManager):
         self._levels[self._cur_level_index].set_player(self._player)
 
     def _update(self):
-        actions = []
-        actions.extend(self._hud.on_update(self._keyboard))
-        actions.extend(self._levels[self._cur_level_index].on_update(self._keyboard))
+        if not self.is_game_over:
+            actions = []
+            actions.extend(self._hud.on_update(self._keyboard))
+            actions.extend(
+                self._levels[self._cur_level_index].on_update(self._keyboard)
+            )
 
-        for action in actions:
-            if isinstance(action, IManagerGameAction):
-                action.manager_handler(self)
+            for action in actions:
+                if isinstance(action, IManagerGameAction):
+                    action.manager_handler(self)
 
     def _draw(self):
-        self._hud.on_draw(
-            self._animation.with_area(
-                margin_x=0,
-                margin_y=self.level_height + 1,
-                width=self._width,
-                height=6,
+        if not self.is_game_over:
+            self._hud.on_draw(
+                self._animation.with_area(
+                    margin_x=0,
+                    margin_y=self.level_height + 1,
+                    width=self._width,
+                    height=6,
+                )
             )
-        )
 
-        self._levels[self._cur_level_index].on_draw(
-            self._animation.with_area(
-                margin_x=0,
-                margin_y=0,
-                width=self.level_width,
-                height=self.level_height,
+            self._levels[self._cur_level_index].on_draw(
+                self._animation.with_area(
+                    margin_x=0,
+                    margin_y=0,
+                    width=self.level_width,
+                    height=self.level_height,
+                )
             )
-        )
 
-        self._animation.print(
-            f"Level: {self._cur_level_index + 1}/{len(self._levels)}",
-            color=Color.RED,
-        )
+            self._animation.print(
+                f"Level: {self._cur_level_index + 1}/{len(self._levels)}",
+                color=Color.RED,
+            )
+        else:
+            self._game_over.on_draw(
+                self._animation.with_area(
+                    margin_x=self._width // 2 - len(GAMEOVER.splitlines()[0]) // 2,
+                    margin_y=self._height // 2 - len(GAMEOVER.splitlines()) // 2,
+                    width=self._width,
+                    height=self._height,
+                )
+            )
 
     def _game_loop(self):
         self._init()
@@ -106,5 +123,8 @@ class GameManager(IManager):
 
     @override
     def next_level(self):
+        if self._cur_level_index == len(self._levels) - 1:
+            self.is_game_over = True
+            return
         self._cur_level_index = min(self._cur_level_index + 1, len(self._levels) - 1)
         self._levels[self._cur_level_index].set_player(self._player)
