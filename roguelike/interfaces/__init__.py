@@ -7,6 +7,8 @@ from .level_game_action import ILevelGameAction
 from .room_game_action import IRoomGameAction
 from .room import IRoom
 from .level import ILevel
+from .manager import IManager
+from .manager_game_action import IManagerGameAction
 
 
 __all__ = [
@@ -19,4 +21,6 @@ __all__ = [
     "IRoomGameAction",
     "IRoom",
     "ILevel",
+    "IManager",
+    "IManagerGameAction",
 ]

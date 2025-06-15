@@ -1,16 +1,17 @@
-from roguelike.interfaces import IKeyboard
+from roguelike.interfaces import *
 from roguelike.game_objects import Level
 from roguelike.animation import Animation
-from roguelike.types import Rect, Cell
+from roguelike.types import Rect, Cell, Color
 import time
 from roguelike.game_objects.prey import Player
 from roguelike.game_objects.armor import Armor
 from roguelike.game_objects.weapons import Weapon
 from roguelike.game_objects import HUD
 import curses
+from typing import override
 
 
-class GameManager:
+class GameManager(IManager):
 
     def __init__(
         self,
@@ -31,31 +32,39 @@ class GameManager:
         self.level_width = width
         self.level_height = height - 10
 
-        self._levels: list[Level] = []
         self._player = Player(
             armor=Armor(Cell(0, 0)),
             weapon=Weapon(Cell(0, 0)),
             health=100,
             cell=Cell(1, 1),
         )
+        self._cur_level_index = 0
+        self._levels: list[Level] = []
         self._hud = HUD()
 
     def _init(self):
-        self._levels.append(
-            Level(
-                rect=Rect(
-                    lt=Cell(0, 0), rb=Cell(self.level_width - 1, self.level_height - 1)
+        for _ in range(5):
+            self._levels.append(
+                Level(
+                    rect=Rect(
+                        lt=Cell(0, 0),
+                        rb=Cell(self.level_width - 1, self.level_height - 1),
+                    )
                 )
             )
-        )
         for level in self._levels:
             level.on_init()
-            level.set_player(self._player)
+
+        self._levels[self._cur_level_index].set_player(self._player)
 
     def _update(self):
-        self._hud.on_update(self._keyboard)
-        for level in self._levels:
-            level.on_update(self._keyboard)
+        actions = []
+        actions.extend(self._hud.on_update(self._keyboard))
+        actions.extend(self._levels[self._cur_level_index].on_update(self._keyboard))
+
+        for action in actions:
+            if isinstance(action, IManagerGameAction):
+                action.manager_handler(self)
 
     def _draw(self):
         self._hud.on_draw(
@@ -67,15 +76,19 @@ class GameManager:
             )
         )
 
-        for level in self._levels:
-            level.on_draw(
-                self._animation.with_area(
-                    margin_x=0,
-                    margin_y=0,
-                    width=self.level_width,
-                    height=self.level_height,
-                )
+        self._levels[self._cur_level_index].on_draw(
+            self._animation.with_area(
+                margin_x=0,
+                margin_y=0,
+                width=self.level_width,
+                height=self.level_height,
             )
+        )
+
+        self._animation.print(
+            f"Level: {self._cur_level_index + 1}/{len(self._levels)}",
+            color=Color.RED,
+        )
 
     def _game_loop(self):
         self._init()
@@ -90,3 +103,8 @@ class GameManager:
 
     def run(self):
         self._game_loop()
+
+    @override
+    def next_level(self):
+        self._cur_level_index = min(self._cur_level_index + 1, len(self._levels) - 1)
+        self._levels[self._cur_level_index].set_player(self._player)

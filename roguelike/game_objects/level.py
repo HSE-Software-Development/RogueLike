@@ -9,6 +9,7 @@ from sklearn.cluster import KMeans
 from typing import override, Optional
 import numpy as np
 from roguelike.game_objects.prey import Player
+from roguelike.utils.diameter import diameter
 
 
 class Level(ILevel, IGameObject):
@@ -59,6 +60,8 @@ class Level(ILevel, IGameObject):
         self.connections: list[list[int]] = [[] for _ in range(len(self.rooms))]
         self.connect_rooms()
 
+        self.set_entry_and_exit()
+
         # from roguelike.game_objects.prey import Player
         # from roguelike.game_objects.armor import Armor
         # from roguelike.game_objects.weapons import Weapon
@@ -74,8 +77,84 @@ class Level(ILevel, IGameObject):
         #     )
         # )
 
+    def set_entry_and_exit(self):
+        u, v = diameter(self.connections)
+
+        if self.rooms[u].rect.top < self.rooms[v].rect.top:
+            self.entry_room = u
+            self.exit_room = v
+        else:
+            self.entry_room = v
+            self.exit_room = u
+
+        visited = self.get_visited()
+        entry_doors = self.get_doors(self.rooms[self.entry_room])
+        random.shuffle(entry_doors)
+
+        minY = 10000
+        entry_door = Cell()
+        for door in entry_doors:
+            if door.y < minY:
+                minY = door.y
+                entry_door = door
+
+        starts = []
+        for x in range(entry_door.x - 1, entry_door.x + 2):
+            for y in range(entry_door.y - 1, entry_door.y + 2):
+                cell = Cell(x, y)
+                visited[x][y] = True
+                if (entry_door.x == x or entry_door.y == y) and self.rooms[
+                    self.entry_room
+                ].rect.is_outside(cell):
+                    starts.append(Cell(x, y))
+                self.all_doors_cells.append(cell)
+
+        ends = [Cell(x, 1) for x in range(self.rect.left, self.rect.right + 1)]
+
+        path = bfs_shortest_path(starts=starts, ends=ends, visited=visited)
+        if path is not None:
+            self.roads.append(path)
+
+        self.rooms[self.entry_room].add_door(entry_door, -1, -1)
+
+        visited = self.get_visited()
+        exit_doors = self.get_doors(self.rooms[self.exit_room])
+
+        random.shuffle(exit_doors)
+
+        maxY = -10000
+        exit_door = Cell()
+        for door in exit_doors:
+            if door.y > maxY:
+                maxY = door.y
+                exit_door = door
+
+        starts = []
+        for x in range(exit_door.x - 1, exit_door.x + 2):
+            for y in range(exit_door.y - 1, exit_door.y + 2):
+                cell = Cell(x, y)
+                visited[x][y] = True
+                if (exit_door.x == x or exit_door.y == y) and self.rooms[
+                    self.exit_room
+                ].rect.is_outside(cell):
+                    starts.append(Cell(x, y))
+                self.all_doors_cells.append(cell)
+
+        ends = [
+            Cell(x, self.rect.bottom - 1)
+            for x in range(self.rect.left, self.rect.right + 1)
+        ]
+
+        path = bfs_shortest_path(starts=starts, ends=ends, visited=visited)
+        if path is not None:
+            self.roads.append(path)
+
+        self.rooms[self.exit_room].add_door(exit_door, -1, 1)
+
     def no_collision(self, rect: Rect) -> bool:
-        if not self.rect.is_inside(rect.lt) or not self.rect.is_inside(rect.rb):
+        if not self.rect.with_margin(-1).is_inside(
+            rect.lt
+        ) or not self.rect.with_margin(-1).is_inside(rect.rb):
             return False
 
         for room in self.rooms:
@@ -99,39 +178,51 @@ class Level(ILevel, IGameObject):
 
         self.generate_roads(edges)
 
+    def get_visited(self) -> dict[int, dict[int, bool]]:
+        visited = {
+            x: {y: False for y in range(self.rect.top, self.rect.bottom + 1)}
+            for x in range(self.rect.left, self.rect.right + 1)
+        }
+        for x in range(self.rect.left, self.rect.right + 1):
+            visited[x][self.rect.top] = True
+
+        for x in range(self.rect.left, self.rect.right + 1):
+            visited[x][self.rect.bottom] = True
+
+        for y in range(self.rect.top, self.rect.bottom + 1):
+            visited[self.rect.left][y] = True
+
+        for y in range(self.rect.top, self.rect.bottom + 1):
+            visited[self.rect.right][y] = True
+
+        for room in self.rooms:
+            rect = room.rect.with_margin(margin=self.margin)
+            # rect = room.rect
+            for x in range(rect.left, rect.right + 1):
+                for y in range(rect.top, rect.bottom + 1):
+                    visited[x][y] = True
+        return visited
+
+    def get_doors(self, room: Room) -> list[Cell]:
+        doors = []
+        for x in range(room.rect.left + 3, room.rect.right - 3 + 1):
+            doors.append(Cell(x, room.rect.top))
+            doors.append(Cell(x, room.rect.bottom))
+        for y in range(room.rect.top + 3, room.rect.bottom - 3 + 1):
+            doors.append(Cell(room.rect.left, y))
+            doors.append(Cell(room.rect.right, y))
+
+        doors = [door for door in doors if door not in self.all_doors_cells]
+        return doors
+
     def generate_roads(self, edges: list[tuple[int, int]]):
         self.roads = []
 
-        all_doors_cells: list[Cell] = []
+        self.all_doors_cells: list[Cell] = []
 
         def get_nearest_doors(room1: Room, room2: Room) -> tuple[Cell, Cell]:
-            # doors1 = [
-            #     Cell(room1.rect.center.x, room1.rect.top),
-            #     Cell(room1.rect.center.x, room1.rect.bottom),
-            #     Cell(room1.rect.left, room1.rect.center.y),
-            #     Cell(room1.rect.right, room1.rect.center.y),
-            # ]
-            # doors2 = [
-            #     Cell(room2.rect.center.x, room2.rect.top),
-            #     Cell(room2.rect.center.x, room2.rect.bottom),
-            #     Cell(room2.rect.left, room2.rect.center.y),
-            #     Cell(room2.rect.right, room2.rect.center.y),
-            # ]
-
-            def get_doors(room: Room) -> list[Cell]:
-                doors = []
-                for x in range(room.rect.left + 3, room.rect.right - 3 + 1):
-                    doors.append(Cell(x, room.rect.top))
-                    doors.append(Cell(x, room.rect.bottom))
-                for y in range(room.rect.top + 3, room.rect.bottom - 3 + 1):
-                    doors.append(Cell(room.rect.left, y))
-                    doors.append(Cell(room.rect.right, y))
-
-                doors = [door for door in doors if door not in all_doors_cells]
-                return doors
-
-            doors1 = get_doors(room1)
-            doors2 = get_doors(room2)
+            doors1 = self.get_doors(room1)
+            doors2 = self.get_doors(room2)
 
             minDist = 10000
             res1: Cell = Cell()
@@ -149,28 +240,7 @@ class Level(ILevel, IGameObject):
             room_u = self.rooms[u]
             room_v = self.rooms[v]
 
-            visited = {
-                x: {y: False for y in range(self.rect.top, self.rect.bottom + 1)}
-                for x in range(self.rect.left, self.rect.right + 1)
-            }
-            for x in range(self.rect.left, self.rect.right + 1):
-                visited[x][self.rect.top] = True
-
-            for x in range(self.rect.left, self.rect.right + 1):
-                visited[x][self.rect.bottom] = True
-
-            for y in range(self.rect.top, self.rect.bottom + 1):
-                visited[self.rect.left][y] = True
-
-            for y in range(self.rect.top, self.rect.bottom + 1):
-                visited[self.rect.right][y] = True
-
-            for room in self.rooms:
-                rect = room.rect.with_margin(margin=self.margin)
-                # rect = room.rect
-                for x in range(rect.left, rect.right + 1):
-                    for y in range(rect.top, rect.bottom + 1):
-                        visited[x][y] = True
+            visited = self.get_visited()
 
             door1, door2 = get_nearest_doors(room_u, room_v)
             len_room_u = len(room_u.doors)
@@ -185,7 +255,7 @@ class Level(ILevel, IGameObject):
                     visited[x][y] = True
                     if (door1.x == x or door1.y == y) and room_u.rect.is_outside(cell):
                         starts.append(Cell(x, y))
-                    all_doors_cells.append(cell)
+                    self.all_doors_cells.append(cell)
 
             ends = []
             for x in range(door2.x - 1, door2.x + 2):
@@ -195,7 +265,7 @@ class Level(ILevel, IGameObject):
                     if (door2.x == x or door2.y == y) and room_v.rect.is_outside(cell):
                         ends.append(Cell(x, y))
                         visited[x][y] = False
-                    all_doors_cells.append(cell)
+                    self.all_doors_cells.append(cell)
 
             path = bfs_shortest_path(starts, ends, visited)
             print(f"Path from {door1} to {door2}: {path}")
@@ -222,13 +292,13 @@ class Level(ILevel, IGameObject):
         print(f"Centers: {self.centers}")
 
         max_width = int(self.rect.width / 2.5)
-        min_width = max(self.rect.width // 10, 6)
+        min_width = max(self.rect.width // 10, 5)
         max_height = int(self.rect.height / 2.5)
-        min_height = max(self.rect.height // 10, 8)
-        max_tries = 10
+        min_height = max(self.rect.height // 10, 4)
+        max_tries = 50
         for center in self.centers:
             for t in range(max_tries):
-                if t < max_tries // 2:
+                if t < 4:
                     width = random.randint(min_width, max_width)
                     height = random.randint(min_height, max_height)
                 else:
@@ -237,8 +307,8 @@ class Level(ILevel, IGameObject):
                         self.rect.top + 1,
                         self.rect.bottom - 1,
                     )
-                    width = min_width
-                    height = min_height
+                    width = random.randint(min_width, max_width)
+                    height = random.randint(min_height, max_height)
 
                 lt = Cell(center[0] - width // 2, center[1] - height // 2)
                 rb = Cell(center[0] + width // 2, center[1] + height // 2)
@@ -256,29 +326,29 @@ class Level(ILevel, IGameObject):
     @override
     def on_draw(self, animation: IAnimation):
 
-        animation.print(self.num_of_rooms)
+        # animation.print(self.num_of_rooms)
         for room in self.rooms:
             room.on_draw(animation)
 
-        for x in range(self.rect.left, self.rect.right + 1):
-            animation.draw(
-                Cell(x, self.rect.top), " ", color=Color.BLACK_YELLOW, z_buffer=0
-            )
+        # for x in range(self.rect.left, self.rect.right + 1):
+        #     animation.draw(
+        #         Cell(x, self.rect.top), " ", color=Color.BLACK_YELLOW, z_buffer=0
+        #     )
 
-        for x in range(self.rect.left, self.rect.right + 1):
-            animation.draw(
-                Cell(x, self.rect.bottom), " ", color=Color.BLACK_YELLOW, z_buffer=0
-            )
+        # for x in range(self.rect.left, self.rect.right + 1):
+        #     animation.draw(
+        #         Cell(x, self.rect.bottom), " ", color=Color.BLACK_YELLOW, z_buffer=0
+        #     )
 
-        for y in range(self.rect.top, self.rect.bottom + 1):
-            animation.draw(
-                Cell(self.rect.left, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
-            )
+        # for y in range(self.rect.top, self.rect.bottom + 1):
+        #     animation.draw(
+        #         Cell(self.rect.left, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
+        #     )
 
-        for y in range(self.rect.top, self.rect.bottom + 1):
-            animation.draw(
-                Cell(self.rect.right, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
-            )
+        # for y in range(self.rect.top, self.rect.bottom + 1):
+        #     animation.draw(
+        #         Cell(self.rect.right, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
+        #     )
 
         # for center in self.centers:
         #     animation.draw(Cell(center[0], center[1]), "C", color=Color.RED, z_buffer=2)
@@ -303,8 +373,7 @@ class Level(ILevel, IGameObject):
 
     def set_player(self, player: Player):
         self.player = player
-        if self.rooms:
-            self.rooms[0].set_player(player, -1)
+        self.rooms[self.entry_room].set_player(player, -1)
 
     @override
     def move_player(self, prev_room: int, next_room: int, door_index: int):
@@ -313,3 +382,10 @@ class Level(ILevel, IGameObject):
 
         self.rooms[prev_room].remove_player(self.player)
         self.rooms[next_room].set_player(self.player, door_index)
+
+    @override
+    def remove_player(self, room_index: int):
+        if self.player is None:
+            return
+        self.rooms[room_index].remove_player(self.player)
+        self.player = None

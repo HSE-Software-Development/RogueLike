@@ -19,6 +19,8 @@ def bfs_shortest_path(
         path = queue.popleft()
         node = path[-1]
         print(path, starts, ends)
+        if node in ends:
+            return path
 
         for dlt in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             neighbor = Cell(node.x + dlt[0], node.y + dlt[1])

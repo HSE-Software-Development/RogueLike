@@ -75,6 +75,13 @@ class Animation(IAnimation):
                 # print(str(pixel), end="")
             # print()
 
+        for i, text in enumerate(self._text):
+            self.stdscr.addstr(
+                self._margin_y + self._height + i,
+                0,
+                text.text,
+                curses.color_pair(text.color.value[0]),
+            )
         self.stdscr.refresh()
         # print("Text Output:")
         # for text in self._text:

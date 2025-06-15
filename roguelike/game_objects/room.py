@@ -2,7 +2,7 @@ from roguelike.interfaces import *
 from roguelike.types import Cell, Rect, Color
 from typing import override, Optional
 from roguelike.game_objects.prey import Player
-from roguelike.game_actions import ChangeRoomAction
+from roguelike.game_actions import ChangeRoomAction, ChangeLevelAction
 
 
 class Room(IRoom, IGameObject):
@@ -24,15 +24,12 @@ class Room(IRoom, IGameObject):
     def set_player(self, player: Player, door_index: int):
         self.player = player
 
-        if door_index >= 0:
-            door, _, _ = self.doors[door_index]
-            for x in range(door.x - 1, door.x + 2):
-                for y in range(door.y - 1, door.y + 2):
-                    cell = Cell(x, y)
-                    if (y == door.y or x == door.x) and self.validate_cell(cell):
-                        self.player.cell = cell
-        else:
-            self.player.cell = self.rect.center
+        door, _, _ = self.doors[door_index]
+        for x in range(door.x - 1, door.x + 2):
+            for y in range(door.y - 1, door.y + 2):
+                cell = Cell(x, y)
+                if (y == door.y or x == door.x) and self.validate_cell(cell):
+                    self.player.cell = cell
 
         self.flag = False
         self.add_object(player)
@@ -134,13 +131,21 @@ class Room(IRoom, IGameObject):
                         if self.rect.is_on_edge(cell):
                             if cell in player_cells:
                                 if self.flag:
-                                    actions.append(
-                                        ChangeRoomAction(
-                                            prev_room=self.index,
-                                            next_room=room_index,
-                                            door_index=door_index,
+                                    if room_index == -1:
+                                        if door_index != -1:
+                                            actions.append(
+                                                ChangeLevelAction(
+                                                    room_index=self.index,
+                                                )
+                                            )
+                                    else:
+                                        actions.append(
+                                            ChangeRoomAction(
+                                                prev_room=self.index,
+                                                next_room=room_index,
+                                                door_index=door_index,
+                                            )
                                         )
-                                    )
                                 self.flag = True
 
         return actions
