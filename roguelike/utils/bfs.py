@@ -1,5 +1,6 @@
 from collections import deque
 from roguelike.types import Cell
+import random
 
 
 def bfs_shortest_path(
@@ -22,7 +23,9 @@ def bfs_shortest_path(
         if node in ends:
             return path
 
-        for dlt in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+        dlts = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        random.shuffle(dlts)
+        for dlt in dlts:
             neighbor = Cell(node.x + dlt[0], node.y + dlt[1])
 
             if not (
