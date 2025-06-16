@@ -5,7 +5,7 @@ from typing import override
 
 class WoodBow(RangeWeapon):
     def __init__(self, cell):
-        super().__init__(cell, projectile_health=10)  # TODO
+        super().__init__(cell, projectile_health=10)
 
         self.attack_speed = 0.5
         self.physical_damage = 15.0

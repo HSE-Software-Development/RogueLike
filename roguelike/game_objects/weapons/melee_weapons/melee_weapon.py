@@ -21,6 +21,7 @@ class MeleeWeapon(Weapon):
         if self._is_attack_time():
             for horizontal_offset in range(0, self.range + 1):
                 for vertical_offset in range(0, self.range + 1):
+                    self.attacked_cells.clear()
                     self.attacked_cells.append(
                         self.cell + Cell(horizontal_offset, vertical_offset)
                     )

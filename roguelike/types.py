@@ -1,4 +1,5 @@
 from __future__ import annotations
+from numpy import sign, sqrt
 from pydantic import BaseModel
 from enum import Enum
 import curses
@@ -51,6 +52,19 @@ class Cell:
     def __isub__(self, other: Cell):
         self.x -= other.x
         self.y -= other.y
+
+    def normalize(self):
+        if abs(self.x) == abs(self.y):
+            self.x = sign(self.x)
+            self.y = sign(self.y)
+        elif abs(self.x) > abs(self.y):
+            self.x = sign(self.x)
+            self.y = 0
+        else:
+            self.x = 0
+            self.y = sign(self.y)
+
+        return self
 
     def distance(self, other: Cell) -> float:
         return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5

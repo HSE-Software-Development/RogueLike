@@ -1,8 +1,14 @@
+from roguelike.game_actions.create_action import CreateAction
+from roguelike.game_actions.game_over import GameOverAction
+from roguelike.game_actions.remove_action import RemoveAction
+from roguelike.game_actions.sleep import SleepAction
+from roguelike.game_objects.game_over import GameOver
 from .npc import NPC
 from roguelike.game_objects.armor import Armor
 from roguelike.types import Cell, Color, Effect
 from roguelike.interfaces import *
 from roguelike.game_objects.weapons import Weapon
+from roguelike.game_objects.weapons.range_weapons.range_weapon import RangeWeapon
 from roguelike.game_actions import MoveAction
 from typing import override
 
@@ -10,33 +16,55 @@ from typing import override
 class Player(NPC):
     def __init__(self, cell: Cell, health: int, armor: Armor, weapon: Weapon):
         super().__init__(cell, health, armor=armor, weapon=weapon)
+
+        self.update_time = 10.0  # per 1 second
+
+        self.direction = Cell(1, 0)
+
+        self.armor.cell = self.cell
+        self.weapon.cell = self.cell
         self.children.append(self.armor)
         self.children.append(self.weapon)
 
+        self.delayed_attack = False
+
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
+        if keyboard.is_pressed("o"):
+            self.delayed_attack = True
+
+        if not self.is_update_time():
+            return []
+
         new_actions: list[IGameAction] = []
 
         if keyboard.is_pressed("w"):
-            new_actions.append(
-                MoveAction(object=self, cell=Cell(self.cell.x, self.cell.y - 1))
-            )
+            self.direction = Cell(0, -1)
+            new_actions.append(MoveAction(object=self, cell=self.cell + self.direction))
         elif keyboard.is_pressed("s"):
-            new_actions.append(
-                MoveAction(object=self, cell=Cell(self.cell.x, self.cell.y + 1))
-            )
+            self.direction = Cell(0, 1)
+            new_actions.append(MoveAction(object=self, cell=self.cell + self.direction))
         elif keyboard.is_pressed("a"):
-            new_actions.append(
-                MoveAction(object=self, cell=Cell(self.cell.x - 1, self.cell.y))
-            )
+            self.direction = Cell(-1, 0)
+            new_actions.append(MoveAction(object=self, cell=self.cell + self.direction))
         elif keyboard.is_pressed("d"):
-            new_actions.append(
-                MoveAction(object=self, cell=Cell(self.cell.x + 1, self.cell.y))
-            )
+            self.direction = Cell(1, 0)
+            new_actions.append(MoveAction(object=self, cell=self.cell + self.direction))
 
-        new_actions.extend(super().on_update(keyboard))
+        if isinstance(self.weapon, RangeWeapon):
+            if len(self.weapon.directions) == 1:
+                self.weapon.directions = [self.direction]
+
+        if self.delayed_attack:
+            new_actions.extend(self.weapon.on_update(keyboard))
+            self.delayed_attack = False
+
+        if self.health <= 0:
+            return [RemoveAction(self), SleepAction(1.5), GameOverAction()]
 
         return new_actions
 
     def on_draw(self, animation):
+        for child in self.children:
+            child.on_draw(animation)
         animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)

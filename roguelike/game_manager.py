@@ -1,3 +1,5 @@
+from roguelike.game_objects.armor.old_robe import OldRobe
+from roguelike.game_objects.weapons.range_weapons.wood_bow import WoodBow
 from roguelike.interfaces import *
 from roguelike.game_objects import Level
 from roguelike.animation import Animation
@@ -36,10 +38,10 @@ class GameManager(IManager):
         self.is_game_over = False
 
         self._player = Player(
-            armor=Armor(Cell(0, 0)),
-            weapon=Weapon(Cell(0, 0)),
-            health=100,
+            health=10,
             cell=Cell(1, 1),
+            armor=OldRobe(Cell(1, 1)),
+            weapon=WoodBow(Cell(1, 1)),
         )
         self._cur_level_index = 0
         self._levels: list[Level] = []
@@ -115,7 +117,7 @@ class GameManager(IManager):
             self._draw()
             self._animation.render()
 
-            curses.napms(50)
+            # curses.napms(50)
             self._animation.clear()
 
     def run(self):
@@ -128,3 +130,6 @@ class GameManager(IManager):
             return
         self._cur_level_index = min(self._cur_level_index + 1, len(self._levels) - 1)
         self._levels[self._cur_level_index].set_player(self._player)
+
+    def set_gameover(self):
+        self.is_game_over = True

@@ -1,3 +1,4 @@
+import time
 from roguelike.types import Cell
 from roguelike.interfaces import *
 from roguelike.game_actions.remove_action import RemoveAction
@@ -13,6 +14,21 @@ class Prey(IGameObjectWithPosition):
         self.armor = (
             armor  # совсем не важно, как ты ударишь, а важно, какой держишь удар
         )
+
+        self.update_time = 2.0  # per 1 second
+        self.previous_time = -1.0
+
+    def is_update_time(self) -> bool:
+        current_time = time.monotonic()
+
+        if self.previous_time == -1.0:
+            self.previous_time = current_time
+        elapsed_time = current_time - self.previous_time
+
+        if self.update_time == 0.0 or elapsed_time >= 1.0 / self.update_time:
+            self.previous_time = current_time
+            return True
+        return False
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:

@@ -17,19 +17,21 @@ class DamageAction(IRoomGameAction):
     @override
     def room_handler(self, room: IRoom):
         from roguelike.game_objects.prey import Prey
-
-        grid: dict[Cell, list[IGameObjectWithPosition]] = {}
-        for obj in room.objects:
-            if obj.cell not in grid:
-                grid[obj.cell] = []
-            grid[obj.cell].append(obj)
+        from roguelike.game_objects.prey.projectile import Projectile
+        from roguelike.game_objects.weapons.melee_weapons.projectile_weapon import (
+            ProjectileWeapon,
+        )
 
         receivers: list[IGameObjectWithPosition] = []
         for cell in self.cells:
-            objects_in_cell = grid[cell]
-            for obj in objects_in_cell:
+            for obj in room.objects:
                 if obj == self.sender or not isinstance(obj, Prey):
                     continue
-                receivers.append(obj)
-
-        self.hit(receivers)
+                if obj.cell == cell and not (
+                    isinstance(self.sender, ProjectileWeapon)
+                    and self.sender.owner == obj
+                ):
+                    receivers.append(obj)
+        if len(receivers) > 0:
+            # print(str(self.sender) + " " + str(receivers[0]))
+            self.hit(receivers)

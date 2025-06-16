@@ -1,3 +1,6 @@
+import random
+import time
+from roguelike.game_objects.prey.based_hater import BasedHater
 from roguelike.interfaces import *
 from roguelike.types import Cell, Rect, Color
 from typing import override, Optional
@@ -14,6 +17,9 @@ class Room(IRoom, IGameObject):
 
         self.player: Optional[Player] = None
         self.flage = True
+
+        self.update_time = 20.0  # per second
+        self.previous_time = -1.0
 
     def set_index(self, index: int):
         self.index = index
@@ -38,9 +44,27 @@ class Room(IRoom, IGameObject):
         self.player = None
         self.remove_object(player)
 
+    def is_update_time(self) -> bool:
+        current_time = time.monotonic()
+
+        if self.previous_time == -1.0:
+            self.previous_time = current_time
+        elapsed_time = current_time - self.previous_time
+
+        if self.update_time == 0.0 or elapsed_time >= 1.0 / self.update_time:
+            self.previous_time = current_time
+            return True
+        return False
+
     @override
     def on_init(self):
-        pass
+        for _ in range(0, 5):
+            cell = Cell(
+                random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
+                random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
+            )
+            print(str(cell.x) + " " + str(cell.y))
+            self.objects.append(BasedHater(health=10, cell=cell))
 
     @override
     def on_draw(self, animation: IAnimation):
@@ -103,6 +127,9 @@ class Room(IRoom, IGameObject):
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
+        if not self.is_update_time():
+            return []
+
         actions = []
         for obj in self.objects:
             actions.extend(obj.on_update(keyboard))

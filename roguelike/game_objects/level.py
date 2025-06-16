@@ -317,6 +317,7 @@ class Level(ILevel, IGameObject):
                 if self.no_collision(rect):
                     room = Room(rect=rect)
                     room.set_index(len(self.rooms))
+                    room.on_init()
                     self.rooms.append(room)
                     break
                 else:
