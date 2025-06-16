@@ -46,7 +46,7 @@ class GameManager(IManager):
         self._cur_level_index = 0
         self._levels: list[Level] = []
         self._game_over = GameOver()
-        self._hud = HUD(self._player)
+        self._hud = HUD(self._player, 10)
 
     def _init(self):
         for _ in range(3):
