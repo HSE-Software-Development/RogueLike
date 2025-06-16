@@ -2,7 +2,7 @@ from roguelike.interfaces import *
 from roguelike.types import Rect, Cell, Color
 from enum import Enum
 import random
-from .room import Room
+from .room import Room, RoomType
 from roguelike.utils.mst import Graph
 from roguelike.utils.bfs import bfs_shortest_path
 from sklearn.cluster import KMeans
@@ -82,9 +82,19 @@ class Level(ILevel, IGameObject):
     def init_rooms(self):
         for room in self.rooms:
             room.on_init()
+            room.set_difficulty(self.difficulty)
 
     def set_entry_and_exit(self):
-        u, v = diameter(self.connections)
+        diametr_path = diameter(self.connections)
+        for k in diametr_path[1:-1]:
+            self.rooms[k].set_type(RoomType.MAINQUEST)
+
+        for k in range(len(self.rooms)):
+            if k not in diametr_path:
+                self.rooms[k].set_type(RoomType.SIDEQUEST)
+
+        u = diametr_path[0]
+        v = diametr_path[-1]
 
         if self.rooms[u].rect.top < self.rooms[v].rect.top:
             self.entry_room = u

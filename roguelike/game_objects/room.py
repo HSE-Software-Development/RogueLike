@@ -6,6 +6,12 @@ from roguelike.types import Cell, Rect, Color
 from typing import override, Optional
 from roguelike.game_objects.prey import Player
 from roguelike.game_actions import ChangeRoomAction, ChangeLevelAction
+from enum import Enum
+
+
+class RoomType(Enum):
+    MAINQUEST = "main_quest"
+    SIDEQUEST = "side_quest"
 
 
 class Room(IRoom, IGameObject):
@@ -20,9 +26,17 @@ class Room(IRoom, IGameObject):
 
         self.update_time = 20.0  # per second
         self.previous_time = -1.0
+        self.room_type: RoomType = RoomType.MAINQUEST
+        self.difficulty: float = 0.0
+
+    def set_difficulty(self, difficulty: float):
+        self.difficulty = difficulty
 
     def set_index(self, index: int):
         self.index = index
+
+    def set_type(self, room_type: RoomType):
+        self.room_type = room_type
 
     def add_door(self, cell: Cell, next_room_index: int, door_index: int):
         self.doors.append((cell, next_room_index, door_index))
@@ -73,25 +87,23 @@ class Room(IRoom, IGameObject):
         # else:
         #     animation.print("_")
 
-        for x in range(self.rect.left, self.rect.right + 1):
-            animation.draw(
-                Cell(x, self.rect.top), " ", color=Color.BLACK_YELLOW, z_buffer=1
-            )
+        color = (
+            Color.BLACK_PURPLE
+            if self.room_type == RoomType.MAINQUEST
+            else Color.BLACK_YELLOW
+        )
 
         for x in range(self.rect.left, self.rect.right + 1):
-            animation.draw(
-                Cell(x, self.rect.bottom), " ", color=Color.BLACK_YELLOW, z_buffer=1
-            )
+            animation.draw(Cell(x, self.rect.top), " ", color=color, z_buffer=1)
+
+        for x in range(self.rect.left, self.rect.right + 1):
+            animation.draw(Cell(x, self.rect.bottom), " ", color=color, z_buffer=1)
 
         for y in range(self.rect.top, self.rect.bottom + 1):
-            animation.draw(
-                Cell(self.rect.left, y), " ", color=Color.BLACK_YELLOW, z_buffer=1
-            )
+            animation.draw(Cell(self.rect.left, y), " ", color=color, z_buffer=1)
 
         for y in range(self.rect.top, self.rect.bottom + 1):
-            animation.draw(
-                Cell(self.rect.right, y), " ", color=Color.BLACK_YELLOW, z_buffer=1
-            )
+            animation.draw(Cell(self.rect.right, y), " ", color=color, z_buffer=1)
 
         for x in range(self.rect.left + 1, self.rect.right):
             for y in range(self.rect.top + 1, self.rect.bottom):

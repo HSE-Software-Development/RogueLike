@@ -17,6 +17,7 @@ class Color(Enum):
     BLACK_YELLOW = (9, curses.COLOR_BLACK, curses.COLOR_YELLOW)
     BLACK_RED = (10, curses.COLOR_BLACK, curses.COLOR_RED)
     BLACK_GREEN = (11, curses.COLOR_BLACK, curses.COLOR_GREEN)
+    BLACK_PURPLE = (12, curses.COLOR_BLACK, curses.COLOR_MAGENTA)
 
 
 class Effect(Enum):
