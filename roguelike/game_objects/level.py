@@ -62,6 +62,8 @@ class Level(ILevel, IGameObject):
 
         self.set_entry_and_exit()
 
+        self.init_rooms()
+
         # from roguelike.game_objects.prey import Player
         # from roguelike.game_objects.armor import Armor
         # from roguelike.game_objects.weapons import Weapon
@@ -76,6 +78,10 @@ class Level(ILevel, IGameObject):
         #         ),  # Replace with actual weapon object
         #     )
         # )
+
+    def init_rooms(self):
+        for room in self.rooms:
+            room.on_init()
 
     def set_entry_and_exit(self):
         u, v = diameter(self.connections)
