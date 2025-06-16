@@ -3,13 +3,7 @@ from roguelike.types import Cell, Rect, Color, Effect
 from typing import override, Optional
 from .prey import Player
 from enum import Enum
-
-
-class Item(Enum):
-    SWORD = "sword"
-    BOW = "bow"
-    POTION = "potion"
-    EMPTY = "empty"
+from roguelike.game_objects.prey.inventory import InventoryItem, ItemType
 
 
 HEART = """\
@@ -40,25 +34,24 @@ POTION = """\
   \\ /
 """
 
+KEY = """\
+   $>
+   $>
+   $
+  [=]
+"""
+
 CELL_WIDTH = 9
 CELL_HEIGHT = 6
 
 
 class HUD(IGameObject):
     def __init__(self, player: Player, max_health: int):
-        self.inventory = [
-            Item.SWORD,
-            Item.BOW,
-            Item.EMPTY,
-            Item.POTION,
-            Item.EMPTY,
-        ]
-        self.targeted_item: int = 0
         self.player = player
         self.max_health = max_health
 
     def set_target(self, index: int):
-        self.targeted_item = min(index, len(self.inventory) - 1)
+        self.player.inventory.set_target(index)
 
     def draw_heart(
         self,
@@ -142,11 +135,27 @@ class HUD(IGameObject):
                         effects=[Effect.BOLD],
                     )
 
+    def draw_key(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(KEY.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.YELLOW,
+                        z_buffer=5,
+                        effects=[Effect.BOLD],
+                    )
+
     def draw_inventory_cell(
         self,
         animation: IAnimation,
         cell: Cell,
-        item: Item,
+        item: Optional[InventoryItem],
         is_target: bool = False,
     ):
         def draw_rect(rect: Rect, fill: bool = False):
@@ -180,24 +189,28 @@ class HUD(IGameObject):
             )
         )
         cell = Cell(cell.x + 1, cell.y + 1)
-        if item == Item.SWORD:
+        if item is None:
+            return
+        if item[0] == ItemType.SWORD:
             self.draw_sword(animation, cell)
-        elif item == Item.BOW:
+        elif item[0] == ItemType.BOW:
             self.draw_bow(animation, cell)
-        elif item == Item.POTION:
+        elif item[0] == ItemType.POTION:
             self.draw_potion(animation, cell)
+        elif item[0] == ItemType.KEY:
+            self.draw_key(animation, cell)
 
     def draw_inventory(
         self,
         animation: IAnimation,
         cell: Cell,
     ):
-        for i, item in enumerate(self.inventory):
+        for i, item in enumerate(self.player.inventory.items):
             self.draw_inventory_cell(
                 animation=animation,
                 cell=Cell(cell.x + i * (CELL_WIDTH - 1), cell.y + 0),
                 item=item,
-                is_target=(i == self.targeted_item),
+                is_target=(i == self.player.inventory.target),
             )
 
     @override
@@ -223,7 +236,7 @@ class HUD(IGameObject):
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
-        for i in range(len(self.inventory)):
+        for i in range(len(self.player.inventory.items)):
             if keyboard.is_pressed(str(i + 1)):
                 self.set_target(i)
                 return []

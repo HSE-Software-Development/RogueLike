@@ -5,7 +5,9 @@ from roguelike.interfaces import *
 from roguelike.types import Cell, Rect, Color
 from typing import override, Optional
 from roguelike.game_objects.prey import Player
-from roguelike.game_actions import ChangeRoomAction, ChangeLevelAction
+from roguelike.game_objects.key import Key
+from roguelike.game_actions import ChangeRoomAction, ChangeLevelAction, PickedKey
+from roguelike.game_objects.prey.inventory import ItemType
 from enum import Enum
 
 
@@ -28,6 +30,16 @@ class Room(IRoom, IGameObject):
         self.previous_time = -1.0
         self.room_type: RoomType = RoomType.MAINQUEST
         self.difficulty: float = 0.0
+        self.key: Optional[Key] = None
+
+    def add_key(self):
+        self.key = Key(cell=self.rect.center)
+        self.add_object(self.key)
+
+    def remove_key(self):
+        if self.key is not None:
+            self.remove_object(self.key)
+            self.key = None
 
     def set_difficulty(self, difficulty: float):
         self.difficulty = difficulty
@@ -184,5 +196,13 @@ class Room(IRoom, IGameObject):
                                             )
                                         )
                                 self.flag = True
+
+        if self.player is not None and self.key is not None:
+            if (
+                self.player.cell == self.key.cell
+                or self.player.cell == self.key.cell + Cell(0, -1)
+            ):
+                actions.append(PickedKey(self.index))
+                self.player.inventory.add_item(ItemType.KEY)
 
         return actions
