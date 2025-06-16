@@ -191,13 +191,13 @@ class HUD(IGameObject):
         cell = Cell(cell.x + 1, cell.y + 1)
         if item is None:
             return
-        if item[0] == ItemType.SWORD:
+        if item.type == ItemType.SWORD:
             self.draw_sword(animation, cell)
-        elif item[0] == ItemType.BOW:
+        elif item.type == ItemType.BOW:
             self.draw_bow(animation, cell)
-        elif item[0] == ItemType.POTION:
+        elif item.type == ItemType.POTION:
             self.draw_potion(animation, cell)
-        elif item[0] == ItemType.KEY:
+        elif item.type == ItemType.KEY:
             self.draw_key(animation, cell)
 
     def draw_inventory(

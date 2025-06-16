@@ -76,4 +76,4 @@ class Player(NPC):
     def on_draw(self, animation):
         for child in self.children:
             child.on_draw(animation)
-        animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)
+        animation.draw(self.cell, "*", color=Color.BLACK_RED, z_buffer=5)

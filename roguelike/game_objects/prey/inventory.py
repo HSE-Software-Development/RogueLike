@@ -3,6 +3,7 @@ from roguelike.types import Cell, Rect
 from roguelike.interfaces import *
 from enum import Enum
 from typing import Optional, override
+from pydantic import BaseModel
 
 
 class ItemType(Enum):
@@ -12,7 +13,10 @@ class ItemType(Enum):
     KEY = "key"
 
 
-InventoryItem = tuple[ItemType, Optional[IGameObject]]
+class InventoryItem:
+    def __init__(self, type: ItemType, object: Optional[IGameObject] = None):
+        self.type: ItemType = type
+        self.obj: Optional[IGameObject] = object
 
 
 class Inventory(IGameObject):
@@ -26,14 +30,14 @@ class Inventory(IGameObject):
     ) -> bool:
         for i in range(len(self.items)):
             if self.items[i] is None:
-                self.items[i] = (item_type, object)
+                self.items[i] = InventoryItem(type=item_type, object=object)
                 return True
         return False
 
     def remove_item(self, item_type: ItemType) -> bool:
         for i in range(len(self.items)):
             item = self.items[i]
-            if item is not None and item[0] == item_type:
+            if item is not None and item.type == item_type:
                 self.items[i] = None
                 return True
         return False
