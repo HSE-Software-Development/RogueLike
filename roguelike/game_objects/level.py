@@ -51,7 +51,7 @@ class Level(ILevel, IGameObject):
             weights=[weight for _, weight in num_and_weight],
             k=1,
         )[0]
-        self.num_of_rooms = 7
+        self.num_of_rooms = 16
 
         self.margin = 1
         self.rooms: list[Room] = []
@@ -297,10 +297,10 @@ class Level(ILevel, IGameObject):
         ]
         print(f"Centers: {self.centers}")
 
-        max_width = int(self.rect.width / 2.5)
-        min_width = max(self.rect.width // 10, 5)
-        max_height = int(self.rect.height / 2.5)
-        min_height = max(self.rect.height // 10, 4)
+        max_width = 40
+        min_width = 8
+        max_height = 20
+        min_height = 6
         max_tries = 50
         for center in self.centers:
             for t in range(max_tries):

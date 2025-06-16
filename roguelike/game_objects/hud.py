@@ -1,6 +1,7 @@
 from roguelike.interfaces import *
 from roguelike.types import Cell, Rect, Color, Effect
 from typing import override, Optional
+from .prey import Player
 from enum import Enum
 
 
@@ -44,7 +45,7 @@ CELL_HEIGHT = 6
 
 
 class HUD(IGameObject):
-    def __init__(self):
+    def __init__(self, player: Player, max_health: int):
         self.inventory = [
             Item.SWORD,
             Item.BOW,
@@ -53,6 +54,8 @@ class HUD(IGameObject):
             Item.EMPTY,
         ]
         self.targeted_item: int = 0
+        self.player = player
+        self.max_health = max_health
 
     def set_target(self, index: int):
         self.targeted_item = min(index, len(self.inventory) - 1)
@@ -199,20 +202,20 @@ class HUD(IGameObject):
 
     @override
     def on_draw(self, animation: IAnimation):
-        for i in range(5):
-            if i > 2:
-                self.draw_heart(
-                    animation=animation,
-                    cell=Cell(i * 10, 0),
-                    dead=True,
-                )
-            else:
+        for i in range(self.max_health):
+            if i < self.player.health:
                 self.draw_heart(
                     animation=animation,
                     cell=Cell(i * 10, 0),
                     dead=False,
                 )
-        self.draw_inventory(animation, Cell(70, 0))
+            else:
+                self.draw_heart(
+                    animation=animation,
+                    cell=Cell(i * 10, 0),
+                    dead=True,
+                )
+        self.draw_inventory(animation, Cell(self.max_health * 10 + 20, 0))
 
     @override
     def on_init(self):
