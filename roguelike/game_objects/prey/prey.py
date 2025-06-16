@@ -10,6 +10,7 @@ class Prey(IGameObjectWithPosition):
     def __init__(self, cell: Cell, health: float, armor: Armor):
         self.cell = cell
         self.children = []
+        self.max_health = health
         self.health = health
         self.armor = (
             armor  # совсем не важно, как ты ударишь, а важно, какой держишь удар
