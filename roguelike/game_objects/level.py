@@ -78,16 +78,15 @@ class Level(ILevel, IGameObject):
                 sidequests.append(k)
                 self.rooms[k].set_type(RoomType.SIDEQUEST)
 
-        if len(sidequests) > 0:
-            room_with_key = random.choice(sidequests)
-        else:
-            room_with_key = random.randint(0, len(self.rooms) - 1)
-
-        self.rooms[room_with_key].add_key()
-        self.key_picked = False
-
         u = diametr_path[0]
         v = diametr_path[-1]
+
+        candidates = [
+            i for i in range(len(self.rooms)) if i not in sidequests and i != u
+        ]
+        room_with_key = random.choice(candidates)
+        self.rooms[room_with_key].add_key()
+        self.key_picked = False
 
         if self.rooms[u].rect.top < self.rooms[v].rect.top:
             self.entry_room = u
