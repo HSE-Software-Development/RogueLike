@@ -61,7 +61,7 @@ KEY = """\
   [=]
 """
 
-CELL_WIDTH = 9
+CELL_WIDTH = 10
 CELL_HEIGHT = 6
 
 
