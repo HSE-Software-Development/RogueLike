@@ -20,8 +20,8 @@ def main(stdscr):
         keyboard,
         margin_x=4,
         margin_y=2,
-        width=230,
-        height=70,
+        width=200,
+        height=60,
     )
 
     keyboard.run()

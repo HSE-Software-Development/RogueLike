@@ -5,5 +5,6 @@ from .game_object import IGameObject
 
 
 class IGameObjectWithPosition(IGameObject, ABC):
-    children: list[IGameObjectWithPosition]
     cell: Cell
+    pickable: bool
+    children: list[IGameObjectWithPosition]

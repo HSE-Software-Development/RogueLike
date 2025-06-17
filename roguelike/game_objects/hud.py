@@ -5,6 +5,26 @@ from .prey import Player
 from enum import Enum
 from roguelike.game_objects.prey.inventory import InventoryItem, ItemType
 
+NONE = """\
+**    **
+** *  **
+**  * **
+**    **
+"""
+
+ARMOR = """\
+##****##
+##****##
+| **** |
+  ****
+"""
+
+WEAPON = """\
+   *****
+     ***
+  **   *
+**
+"""
 
 HEART = """\
  **  **
@@ -51,7 +71,7 @@ class HUD(IGameObject):
         self.max_health = max_health
 
     def set_target(self, index: int):
-        self.player.inventory.set_target(index)
+        self.player.inventory.select_item(index)
 
     def draw_heart(
         self,
@@ -151,6 +171,54 @@ class HUD(IGameObject):
                         effects=[Effect.BOLD],
                     )
 
+    def draw_weapon(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(WEAPON.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.CYAN,
+                        z_buffer=5,
+                        effects=[Effect.BOLD],
+                    )
+
+    def draw_none(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(NONE.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.RED,
+                        z_buffer=5,
+                        effects=[Effect.BOLD],
+                    )
+
+    def draw_armor(
+        self,
+        animation: IAnimation,
+        cell: Cell,
+    ):
+        for y, line in enumerate(ARMOR.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.WHITE,
+                        z_buffer=5,
+                        effects=[Effect.BOLD],
+                    )
+
     def draw_inventory_cell(
         self,
         animation: IAnimation,
@@ -199,6 +267,12 @@ class HUD(IGameObject):
             self.draw_potion(animation, cell)
         elif item.type == ItemType.KEY:
             self.draw_key(animation, cell)
+        elif item.type == ItemType.WEAPON:
+            self.draw_weapon(animation, cell)
+        elif item.type == ItemType.ARMOR:
+            self.draw_armor(animation, cell)
+        else:
+            self.draw_none(animation, cell)
 
     def draw_inventory(
         self,
@@ -210,7 +284,7 @@ class HUD(IGameObject):
                 animation=animation,
                 cell=Cell(cell.x + i * (CELL_WIDTH - 1), cell.y + 0),
                 item=item,
-                is_target=(i == self.player.inventory.target),
+                is_target=(i == self.player.inventory.current),
             )
 
     @override

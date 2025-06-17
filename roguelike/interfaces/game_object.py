@@ -5,7 +5,6 @@ from .keyboard import IKeyboard
 
 
 class IGameObject(ABC):
-
     @abstractmethod
     def on_init(self):
         pass

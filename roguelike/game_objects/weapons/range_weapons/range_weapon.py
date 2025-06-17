@@ -26,7 +26,7 @@ class RangeWeapon(Weapon):
                     health=self.projectile_health,
                     direction=direction,
                 )
-                projectileObj.projectile_weapon.set_same(self)
+                projectileObj.weapon.set_same(self)
                 new_actions.append(CreateAction(projectileObj))
             return new_actions
         return []

@@ -26,7 +26,7 @@ class Room(IRoom, IGameObject):
         self.player: Optional[Player] = None
         self.flage = True
 
-        self.update_time = 20.0  # per second
+        self.update_time = 1000.0  # per second
         self.previous_time = -1.0
         self.room_type: RoomType = RoomType.MAINQUEST
         self.difficulty: float = 0.0
@@ -89,16 +89,10 @@ class Room(IRoom, IGameObject):
                 random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
                 random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
             )
-            print(str(cell.x) + " " + str(cell.y))
-            self.objects.append(BasedHater(health=10, cell=cell))
+            self.objects.append(BasedHater(cell, 10, self.difficulty))
 
     @override
     def on_draw(self, animation: IAnimation):
-        # if "k" in pressed():
-        #     animation.print("K")
-        # else:
-        #     animation.print("_")
-
         color = (
             Color.BLACK_PURPLE
             if self.room_type == RoomType.MAINQUEST
@@ -129,11 +123,6 @@ class Room(IRoom, IGameObject):
 
         for obj in self.objects:
             obj.on_draw(animation)
-
-        # for door in self.doors:
-        #     for x in range(door.x - 1, door.x + 2):
-        #         for y in range(door.y - 1, door.y + 2):
-        #             animation.draw(Cell(x, y), "D", z_buffer=2)
 
     @override
     def validate_cell(self, cell: Cell) -> bool:
@@ -203,6 +192,6 @@ class Room(IRoom, IGameObject):
                 or self.player.cell == self.key.cell + Cell(0, -1)
             ):
                 actions.append(PickedKey(self.index))
-                self.player.inventory.add_item(ItemType.KEY)
+                self.player.inventory.add_item(self.key, ItemType.KEY)
 
         return actions

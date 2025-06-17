@@ -1,12 +1,17 @@
+from roguelike.game_actions.create_action import CreateAction
+from roguelike.game_actions.remove_action import RemoveAction
 from roguelike.interfaces.animation import IAnimation
 from roguelike.types import Cell, Rect
 from roguelike.interfaces import *
 from enum import Enum
-from typing import Optional, override
+from typing import List, Optional, override
 from pydantic import BaseModel
 
 
 class ItemType(Enum):
+    NONE = "none"
+    ARMOR = "armor"
+    WEAPON = "weapon"
     SWORD = "sword"
     BOW = "bow"
     POTION = "potion"
@@ -14,43 +19,50 @@ class ItemType(Enum):
 
 
 class InventoryItem:
-    def __init__(self, type: ItemType, object: Optional[IGameObject] = None):
-        self.type: ItemType = type
-        self.obj: Optional[IGameObject] = object
+    def __init__(
+        self, object: IGameObjectWithPosition, type: Optional[ItemType] = None
+    ):
+        if type == None:
+            self.type: ItemType = ItemType.NONE
+        else:
+            self.type: ItemType = type
+        self.obj: IGameObjectWithPosition = object
 
 
 class Inventory(IGameObject):
+    def __init__(self, size: int = 5):
+        self.current = 0
+        self.items: list[Optional[InventoryItem]] = [None] * size
 
-    def __init__(self, num_of_slots: int = 5):
-        self.items: list[Optional[InventoryItem]] = [None] * num_of_slots
-        self.target = 0
+    def drop_item(self) -> List[IGameAction]:
+        dropped = self.items[self.current]
+        self.items[self.current] = None
+        if dropped != None:
+            return [CreateAction(dropped.obj)]
+        return []
 
     def add_item(
-        self, item_type: ItemType, object: Optional[IGameObject] = None
-    ) -> bool:
-        for i in range(len(self.items)):
-            if self.items[i] is None:
-                self.items[i] = InventoryItem(type=item_type, object=object)
-                return True
-        return False
+        self, object: IGameObjectWithPosition, item_type: Optional[ItemType] = None
+    ) -> List[IGameAction]:
+        new_actions: List[IGameAction] = []
 
-    def remove_item(self, item_type: ItemType) -> bool:
-        for i in range(len(self.items)):
-            item = self.items[i]
-            if item is not None and item.type == item_type:
-                self.items[i] = None
-                return True
-        return False
+        if object.pickable:
+            new_actions.extend(self.drop_item())
+            self.items[self.current] = InventoryItem(type=item_type, object=object)
+            new_actions.append(RemoveAction(object))
 
-    def set_target(self, index: int):
-        self.target = min(max(0, index), len(self.items) - 1)
+        return new_actions
 
-    def get_target_item(self) -> Optional[InventoryItem]:
-        return self.items[self.target]
+    def select_item(self, index: int):
+        self.current = min(max(0, index), len(self.items) - 1)
 
-    @override
-    def on_draw(self, animation: IAnimation):
-        pass
+    def get_item(self) -> Optional[InventoryItem]:
+        return self.items[self.current]
+
+    def remove_key(self):
+        for item in self.items:
+            if item != None and item.type == ItemType.KEY:
+                item = None
 
     @override
     def on_init(self):
@@ -59,3 +71,7 @@ class Inventory(IGameObject):
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
         return []
+
+    @override
+    def on_draw(self, animation: IAnimation):
+        pass

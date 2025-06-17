@@ -5,8 +5,11 @@ from typing import override
 
 class Armor(IGameObjectWithPosition):
     def __init__(self, cell):
+        self.pickable = True
+
         self.cell = cell
         self.children = []
+
         self.physical_armor = 0.0
         self.magical_armor = 0.0
 

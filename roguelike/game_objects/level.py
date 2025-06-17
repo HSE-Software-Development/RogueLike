@@ -59,25 +59,8 @@ class Level(ILevel, IGameObject):
 
         self.connections: list[list[int]] = [[] for _ in range(len(self.rooms))]
         self.connect_rooms()
-
         self.set_entry_and_exit()
-
         self.init_rooms()
-
-        # from roguelike.game_objects.prey import Player
-        # from roguelike.game_objects.armor import Armor
-        # from roguelike.game_objects.weapons import Weapon
-
-        # self.rooms[0].add_object(
-        #     Player(
-        #         cell=self.rooms[0].rect.center,
-        #         health=100,
-        #         armor=Armor(cell=self.rooms[0].rect.center),
-        #         weapon=Weapon(
-        #             cell=self.rooms[0].rect.center
-        #         ),  # Replace with actual weapon object
-        #     )
-        # )
 
     def init_rooms(self):
         for room in self.rooms:
@@ -351,33 +334,8 @@ class Level(ILevel, IGameObject):
 
     @override
     def on_draw(self, animation: IAnimation):
-
-        # animation.print(self.num_of_rooms)
         for room in self.rooms:
             room.on_draw(animation)
-
-        # for x in range(self.rect.left, self.rect.right + 1):
-        #     animation.draw(
-        #         Cell(x, self.rect.top), " ", color=Color.BLACK_YELLOW, z_buffer=0
-        #     )
-
-        # for x in range(self.rect.left, self.rect.right + 1):
-        #     animation.draw(
-        #         Cell(x, self.rect.bottom), " ", color=Color.BLACK_YELLOW, z_buffer=0
-        #     )
-
-        # for y in range(self.rect.top, self.rect.bottom + 1):
-        #     animation.draw(
-        #         Cell(self.rect.left, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
-        #     )
-
-        # for y in range(self.rect.top, self.rect.bottom + 1):
-        #     animation.draw(
-        #         Cell(self.rect.right, y), " ", color=Color.BLACK_YELLOW, z_buffer=0
-        #     )
-
-        # for center in self.centers:
-        #     animation.draw(Cell(center[0], center[1]), "C", color=Color.RED, z_buffer=2)
 
         for i, road in enumerate(self.roads):
             for point in road:
@@ -388,8 +346,6 @@ class Level(ILevel, IGameObject):
                         animation.draw(point, "X", color=Color.RED, z_buffer=5)
                 else:
                     animation.draw(point, "@", color=Color.GREEN, z_buffer=5)
-        # for point in self.points:
-        #     animation.draw(Cell(point[0], point[1]), "P", z_buffer=2)
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:

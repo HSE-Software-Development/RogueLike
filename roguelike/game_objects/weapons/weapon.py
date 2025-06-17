@@ -15,6 +15,8 @@ class WeaponAttackPattern(Enum):
 
 class Weapon(IGameObjectWithPosition):
     def __init__(self, cell: Cell):
+        self.pickable = True
+
         self.cell = cell
         self.children = []
 

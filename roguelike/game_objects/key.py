@@ -6,6 +6,7 @@ from roguelike.types import Cell, Color, Effect
 class Key(IGameObjectWithPosition):
     def __init__(self, cell: Cell):
         self.cell = cell
+        self.pickable = True
         self.children = []
 
     @override

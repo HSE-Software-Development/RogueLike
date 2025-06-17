@@ -43,7 +43,6 @@ class GameManager(IManager):
             cell=Cell(1, 1),
             armor=OldRobe(Cell(1, 1)),
             weapon=WoodBow(Cell(1, 1)),
-            inventory=Inventory(num_of_slots=5),
         )
         self._cur_level_index = 0
         self._levels: list[Level] = []
@@ -135,7 +134,7 @@ class GameManager(IManager):
 
         from roguelike.game_objects.prey.inventory import ItemType
 
-        self._player.inventory.remove_item(ItemType.KEY)
+        self._player.inventory.remove_key()
         self._levels[self._cur_level_index].remove_player(room_index=room_index)
         self._cur_level_index = min(self._cur_level_index + 1, len(self._levels) - 1)
         self._levels[self._cur_level_index].set_player(self._player)
