@@ -11,10 +11,18 @@ from roguelike.game_objects.weapons import Weapon
 from roguelike.game_objects.weapons.range_weapons.range_weapon import RangeWeapon
 from roguelike.game_actions import MoveAction
 from typing import override
+from .inventory import Inventory
 
 
 class Player(NPC):
-    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: Weapon):
+    def __init__(
+        self,
+        cell: Cell,
+        health: int,
+        armor: Armor,
+        weapon: Weapon,
+        inventory: Inventory,
+    ):
         super().__init__(cell, health, armor=armor, weapon=weapon)
 
         self.update_time = 10.0  # per 1 second
@@ -27,6 +35,7 @@ class Player(NPC):
         self.children.append(self.weapon)
 
         self.delayed_attack = False
+        self.inventory = inventory
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
@@ -67,4 +76,4 @@ class Player(NPC):
     def on_draw(self, animation):
         for child in self.children:
             child.on_draw(animation)
-        animation.draw(self.cell, "8", color=Color.RED, z_buffer=5)
+        animation.draw(self.cell, "*", color=Color.BLACK_RED, z_buffer=5)

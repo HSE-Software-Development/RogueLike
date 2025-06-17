@@ -89,9 +89,19 @@ class Level(ILevel, IGameObject):
         for k in diametr_path[1:-1]:
             self.rooms[k].set_type(RoomType.MAINQUEST)
 
+        sidequests = []
         for k in range(len(self.rooms)):
             if k not in diametr_path:
+                sidequests.append(k)
                 self.rooms[k].set_type(RoomType.SIDEQUEST)
+
+        if len(sidequests) > 0:
+            room_with_key = random.choice(sidequests)
+        else:
+            room_with_key = random.randint(0, len(self.rooms) - 1)
+
+        self.rooms[room_with_key].add_key()
+        self.key_picked = False
 
         u = diametr_path[0]
         v = diametr_path[-1]
@@ -369,9 +379,15 @@ class Level(ILevel, IGameObject):
         # for center in self.centers:
         #     animation.draw(Cell(center[0], center[1]), "C", color=Color.RED, z_buffer=2)
 
-        for road in self.roads:
+        for i, road in enumerate(self.roads):
             for point in road:
-                animation.draw(point, "@", color=Color.GREEN, z_buffer=5)
+                if i == len(self.roads) - 1:
+                    if self.key_picked:
+                        animation.draw(point, "@", color=Color.GREEN, z_buffer=5)
+                    else:
+                        animation.draw(point, "X", color=Color.RED, z_buffer=5)
+                else:
+                    animation.draw(point, "@", color=Color.GREEN, z_buffer=5)
         # for point in self.points:
         #     animation.draw(Cell(point[0], point[1]), "P", z_buffer=2)
 
@@ -405,3 +421,8 @@ class Level(ILevel, IGameObject):
             return
         self.rooms[room_index].remove_player(self.player)
         self.player = None
+
+    @override
+    def picked_key(self, room_index: int):
+        self.rooms[room_index].remove_key()
+        self.key_picked = True

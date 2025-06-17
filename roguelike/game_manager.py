@@ -11,6 +11,7 @@ from roguelike.game_objects.weapons import Weapon
 from roguelike.game_objects import HUD
 from roguelike.game_objects import GameOver
 from roguelike.game_objects.game_over import GAMEOVER
+from roguelike.game_objects.prey.inventory import Inventory
 import curses
 from typing import override
 
@@ -42,6 +43,7 @@ class GameManager(IManager):
             cell=Cell(1, 1),
             armor=OldRobe(Cell(1, 1)),
             weapon=WoodBow(Cell(1, 1)),
+            inventory=Inventory(num_of_slots=5),
         )
         self._cur_level_index = 0
         self._levels: list[Level] = []
@@ -124,10 +126,17 @@ class GameManager(IManager):
         self._game_loop()
 
     @override
-    def next_level(self):
+    def next_level(self, room_index: int):
+        if not self._levels[self._cur_level_index].key_picked:
+            return
         if self._cur_level_index == len(self._levels) - 1:
             self.is_game_over = True
             return
+
+        from roguelike.game_objects.prey.inventory import ItemType
+
+        self._player.inventory.remove_item(ItemType.KEY)
+        self._levels[self._cur_level_index].remove_player(room_index=room_index)
         self._cur_level_index = min(self._cur_level_index + 1, len(self._levels) - 1)
         self._levels[self._cur_level_index].set_player(self._player)
 

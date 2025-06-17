@@ -4,6 +4,7 @@ from .move_action import MoveAction
 from .damage_action import DamageAction
 from .change_room import ChangeRoomAction
 from .change_level import ChangeLevelAction
+from .picked_key import PickedKey
 
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     "DamageAction",
     "ChangeRoomAction",
     "ChangeLevelAction",
+    "PickedKey",
 ]

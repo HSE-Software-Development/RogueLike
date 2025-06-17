@@ -10,3 +10,7 @@ class ILevel(ABC):
     @abstractmethod
     def remove_player(self, room_index: int):
         pass
+
+    @abstractmethod
+    def picked_key(self, room_index: int):
+        pass

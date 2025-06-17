@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class IManager(ABC):
 
     @abstractmethod
-    def next_level(self):
+    def next_level(self, room_index: int):
         pass
 
     @abstractmethod
