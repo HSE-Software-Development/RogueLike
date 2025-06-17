@@ -18,7 +18,7 @@ class RangeWeapon(Weapon):
     def on_update(self, keyboard: IKeyboard) -> List[IGameAction]:
         from roguelike.game_objects.prey import Projectile
 
-        if self._is_attack_time():
+        if self.is_attack_time():
             new_actions: List[IGameAction] = []
             for direction in self.directions:
                 projectileObj = Projectile(

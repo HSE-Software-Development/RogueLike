@@ -82,7 +82,7 @@ class Weapon(IGameObjectWithPosition):
         self.percentage_magical_armor_piercing = percentage_magical_armor_piercing
         self.absolute_magical_armor_piercing = absolute_magical_armor_piercing
 
-    def _is_attack_time(self) -> bool:
+    def is_attack_time(self) -> bool:
         current_time = time.monotonic()
 
         if self.previous_time == -1.0:
@@ -91,10 +91,11 @@ class Weapon(IGameObjectWithPosition):
 
         if self.attack_speed == 0.0 or elapsed_time >= 1.0 / self.attack_speed:
             self.previous_time = current_time
+            print("return True")
             return True
         return False
 
-    def _calculate_damage(self, armor: Armor) -> float:
+    def calculate_damage(self, armor: Armor) -> float:
         """
         Damage concept: on actions interaction between a player/mob and a weapon provided by weapon functional.
             All data about resists, etc. will be received from armor class
@@ -113,12 +114,14 @@ class Weapon(IGameObjectWithPosition):
     def hit(self, objects: List[IGameObjectWithPosition]):
         from roguelike.game_objects.prey import Prey
 
-        if self._is_attack_time():
-            for obj in objects:
-                if not isinstance(obj, Prey):
-                    continue
-                damage = self._calculate_damage(obj.armor)
-                obj.health -= damage
+        if len(objects) > 0:
+            print(str(self.previous_time) + "; " + str(self.is_attack_time()))
+            if self.is_attack_time():
+                for obj in objects:
+                    if not isinstance(obj, Prey):
+                        continue
+                    damage = self.calculate_damage(obj.armor)
+                    obj.health -= damage
 
     @override
     def on_init(self):

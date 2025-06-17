@@ -22,8 +22,8 @@ ARMOR = """\
 WEAPON = """\
    *****
      ***
-  **   *
-**
+   **  *
+ **
 """
 
 HEART = """\
@@ -62,7 +62,7 @@ KEY = """\
 """
 
 CELL_WIDTH = 10
-CELL_HEIGHT = 6
+CELL_HEIGHT = 5
 
 
 class HUD(IGameObject):

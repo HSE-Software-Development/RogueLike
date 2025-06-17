@@ -29,7 +29,7 @@ class Prey(IGameObjectWithPosition):
 
         self.inventory.select_item(0)
         self.inventory.add_item(self.armor, ItemType.ARMOR)
-        self.children.append(armor)
+        self.children.append(self.armor)
 
         self.inventory.select_item(1)
         self.inventory.add_item(self.weapon, ItemType.WEAPON)

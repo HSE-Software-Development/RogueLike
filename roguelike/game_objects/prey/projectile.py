@@ -13,6 +13,7 @@ class Projectile(Prey):
         super().__init__(cell, health, Armor(cell), ProjectileWeapon(cell, self))
 
         self.direction = direction
+        self.update_time = 5.0
         self.weapon.attack_speed = self.update_time
 
     @override
