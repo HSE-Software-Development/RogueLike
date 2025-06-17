@@ -253,7 +253,7 @@ class HUD(IGameObject):
         draw_rect(
             Rect(
                 Cell(cell.x, cell.y),
-                Cell(cell.x + CELL_WIDTH - 1, cell.y + CELL_HEIGHT - 1),
+                Cell(cell.x + CELL_WIDTH, cell.y + CELL_HEIGHT),
             )
         )
         cell = Cell(cell.x + 1, cell.y + 1)
