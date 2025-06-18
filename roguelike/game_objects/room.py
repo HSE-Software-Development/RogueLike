@@ -1,6 +1,11 @@
 import random
 import time
 from roguelike.game_objects.armor.old_robe import BronzeArmor
+from roguelike.game_objects.potions.small_healing_potion import (
+    BigHealingPotion,
+    PoisonedHealingPotion,
+    SmallHealingPotion,
+)
 from roguelike.game_objects.prey.based_hater import BasedHater
 from roguelike.game_objects.weapons.range_weapons.wood_bow import StrongBow
 from roguelike.interfaces import *
@@ -89,12 +94,30 @@ class Room(IRoom, IGameObject):
                 random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
             )
             self.objects.append(BronzeArmor(cell))
-        for _ in range(0, max(int(self.difficulty * 6), 1)):
+            cell = Cell(
+                random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
+                random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
+            )
+            self.objects.append(BigHealingPotion(cell))
+        room_square = abs(self.rect.lt.x - self.rect.rb.x) * abs(
+            self.rect.lt.y - self.rect.rb.y
+        )
+        number_of_mobs = max(int(room_square * 0.02 * self.difficulty), 1)
+        for _ in range(0, number_of_mobs):
             cell = Cell(
                 random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
                 random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
             )
             self.objects.append(BasedHater(cell, 10, self.difficulty))
+            cell = Cell(
+                random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
+                random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
+            )
+            r = random.randint(0, 10)
+            if r % 3 == 0:
+                self.objects.append(PoisonedHealingPotion(cell))
+            else:
+                self.objects.append(SmallHealingPotion(cell))
 
     @override
     def on_draw(self, animation: IAnimation):

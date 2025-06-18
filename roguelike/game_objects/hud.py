@@ -160,16 +160,19 @@ class HUD(IGameObject):
                         effects=effects,
                     )
 
-    def draw_potion(self, animation: IAnimation, cell: Cell):
+    def draw_potion(self, animation: IAnimation, cell: Cell, used: bool):
         for y, line in enumerate(POTION.splitlines()):
             for x, char in enumerate(line):
                 if char != " ":
+                    effects = [Effect.BOLD]
+                    if used:
+                        effects = [Effect.DIM]
                     animation.draw(
                         Cell(cell.x + x, cell.y + y),
                         char,
                         color=Color.YELLOW,
                         z_buffer=5,
-                        effects=[Effect.BOLD],
+                        effects=effects,
                     )
 
     def draw_key(
@@ -261,7 +264,9 @@ class HUD(IGameObject):
         elif item.type == ItemType.ACTIVE_ARMOR:
             self.draw_armor(animation, cell, True)
         elif item.type == ItemType.POTION:
-            self.draw_potion(animation, cell)
+            self.draw_potion(animation, cell, False)
+        elif item.type == ItemType.USED_POTION:
+            self.draw_potion(animation, cell, True)
         elif item.type == ItemType.KEY:
             self.draw_key(animation, cell)
         else:

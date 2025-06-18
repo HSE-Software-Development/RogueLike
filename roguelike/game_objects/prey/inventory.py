@@ -1,6 +1,7 @@
 from roguelike.game_actions.create import CreateAction
 from roguelike.game_actions.remove import RemoveAction
 from roguelike.game_objects.armor.armor import Armor
+from roguelike.game_objects.potions.potion import Potion
 from roguelike.game_objects.weapons.melee_weapons.melee_weapon import MeleeWeapon
 from roguelike.game_objects.weapons.range_weapons.range_weapon import RangeWeapon
 from roguelike.game_objects.weapons.weapon import Weapon
@@ -59,6 +60,8 @@ class Inventory(IGameObject):
                 item_type = ItemType.BOW
             if isinstance(item, Armor):
                 item_type = ItemType.ARMOR
+            if isinstance(item, Potion):
+                item_type = ItemType.POTION
 
         if item.pickable:
             new_actions.extend(self.drop_item())

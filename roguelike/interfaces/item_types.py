@@ -12,4 +12,5 @@ class ItemType(Enum):
     BOW = "bow"
     ACTIVE_BOW = "active_bow"
     POTION = "potion"
+    USED_POTION = "used_potion"
     KEY = "key"

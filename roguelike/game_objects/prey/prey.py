@@ -49,6 +49,10 @@ class Prey(IGameObjectWithPosition):
         return False
 
     @override
+    def on_init(self):
+        pass
+
+    @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
         if self.health <= 0:
             new_actions: List[IGameAction] = []
@@ -63,8 +67,4 @@ class Prey(IGameObjectWithPosition):
 
     @override
     def on_draw(self, animation: IAnimation):
-        pass
-
-    @override
-    def on_init(self):
         pass

@@ -6,6 +6,7 @@ from roguelike.game_actions.remove import RemoveAction
 from roguelike.game_actions.sleep import SleepAction
 from roguelike.game_objects.game_over import GameOver
 from roguelike.game_objects.armor import Armor
+from roguelike.game_objects.potions.potion import Potion
 from roguelike.game_objects.prey.prey import Prey
 from roguelike.interfaces.game_action import IGameAction
 from roguelike.interfaces.game_object_with_position import IGameObjectWithPosition
@@ -69,6 +70,9 @@ class Player(Prey):
             if item.type == ItemType.ARMOR:
                 item.type = ItemType.ACTIVE_ARMOR
                 self.register_item(item.obj)
+        if isinstance(item.obj, Potion):
+            item.obj.use(self)
+            item.type = ItemType.USED_POTION
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
