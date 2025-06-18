@@ -20,14 +20,14 @@ class Key(IGameObjectWithPosition):
             "F",
             color=Color.YELLOW,
             effects=[Effect.BOLD, Effect.BLINK],
-            z_buffer=5,
+            z_buffer=15,
         )
         animation.draw(
             self.cell,
             "b",
             color=Color.YELLOW,
             effects=[Effect.BOLD, Effect.BLINK],
-            z_buffer=5,
+            z_buffer=15,
         )
 
     @override
