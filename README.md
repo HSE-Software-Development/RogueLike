@@ -39,7 +39,7 @@
 
 ### Описание типичного пользователя
 
-<img src="telegram-cloud-photo-size-2-5409031480316918070-y.jpg" alt="drawing" width="200"/>
+<img src="images/user.jpg" alt="drawing" width="200"/>
 
 Игрок знаком с RPG играми
 Цель: Выйти из подземелья.
