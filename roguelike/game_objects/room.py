@@ -115,9 +115,9 @@ class Room(IRoom, IGameObject):
             )
             r = random.randint(0, 10)
             if r % 3 == 0:
-                self.objects.append(PoisonedHealingPotion(cell))
-            else:
                 self.objects.append(SmallHealingPotion(cell))
+            else:
+                self.objects.append(PoisonedHealingPotion(cell))
 
     @override
     def on_draw(self, animation: IAnimation):

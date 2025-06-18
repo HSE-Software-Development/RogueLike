@@ -52,8 +52,8 @@ class Inventory(IGameObject):
         new_actions: List[IRoomGameAction] = []
 
         if item_type == None or item_type == ItemType.NONE:
-            if isinstance(item, IWeapon):
-                item_type = ItemType.WEAPON
+            # if isinstance(item, IWeapon):
+            #     item_type = ItemType.WEAPON
             if isinstance(item, MeleeWeapon):
                 item_type = ItemType.SWORD
             if isinstance(item, RangeWeapon):

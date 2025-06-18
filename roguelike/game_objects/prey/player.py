@@ -31,23 +31,9 @@ class Player(Prey):
     def register_item(self, item: IGameObjectWithPosition):
         item.cell = self.cell
         if isinstance(item, IWeapon):
-            for iitem in self.inventory.items:
-                if (
-                    iitem != None
-                    and isinstance(iitem.obj, IWeapon)
-                    and item != iitem.obj
-                ):
-                    iitem.type = ItemType.WEAPON
             self.weapon = item
             item.in_hands = True
         if isinstance(item, IArmor):
-            for iitem in self.inventory.items:
-                if (
-                    iitem != None
-                    and isinstance(iitem.obj, IArmor)
-                    and item != iitem.obj
-                ):
-                    iitem.type = ItemType.ARMOR
             self.armor = item
         self.children.append(item)
 
@@ -61,12 +47,11 @@ class Player(Prey):
                     and isinstance(iitem.obj, IWeapon)
                     and item != iitem.obj
                 ):
-                    if item.type == ItemType.ACTIVE_BOW:
-                        item.type = ItemType.BOW
-                    elif item.type == ItemType.ACTIVE_SWORD:
-                        item.type = ItemType.SWORD
-                    else:
-                        item.type = ItemType.WEAPON
+                    iitem.type = ItemType.WEAPON
+                    if isinstance(iitem.obj, RangeWeapon):
+                        iitem.type = ItemType.BOW
+                    elif isinstance(iitem.obj, MeleeWeapon):
+                        iitem.type = ItemType.SWORD
             item.type = ItemType.ACTIVE_WEAPON
             if isinstance(item.obj, MeleeWeapon):
                 item.type = ItemType.ACTIVE_SWORD
@@ -74,12 +59,19 @@ class Player(Prey):
                 item.type = ItemType.ACTIVE_BOW
             self.register_item(item.obj)
         if isinstance(item.obj, IArmor):
-            if item.type == ItemType.ARMOR:
-                item.type = ItemType.ACTIVE_ARMOR
-                self.register_item(item.obj)
+            for iitem in self.inventory.items:
+                if (
+                    iitem != None
+                    and isinstance(iitem.obj, IArmor)
+                    and item != iitem.obj
+                ):
+                    iitem.type = ItemType.ARMOR
+            item.type = ItemType.ACTIVE_ARMOR
+            self.register_item(item.obj)
         if isinstance(item.obj, IPotion):
             item.obj.use(self)
             item.type = ItemType.USED_POTION
+            self.register_item(item.obj)
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
