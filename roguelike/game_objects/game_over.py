@@ -42,7 +42,7 @@ class GameOver(IGameObject):
                         animation.draw(
                             Cell(x, y),
                             char,
-                            color=Color.RED,
+                            color=Color.YELLOW,
                             z_buffer=5,
                             effects=[Effect.BOLD, Effect.BLINK],
                         )
