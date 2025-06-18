@@ -16,6 +16,7 @@ class WeaponAttackPattern(Enum):
 class Weapon(IGameObjectWithPosition):
     def __init__(self, cell: Cell):
         self.pickable = True
+        self.in_hands = False
 
         self.cell = cell
         self.children = []
@@ -87,13 +88,14 @@ class Weapon(IGameObjectWithPosition):
 
         if self.previous_time == -1.0:
             self.previous_time = current_time
+            return True
         elapsed_time = current_time - self.previous_time
 
         if self.attack_speed == 0.0 or elapsed_time >= 1.0 / self.attack_speed:
             self.previous_time = current_time
-            print("return True")
             return True
-        return False
+        else:
+            return False
 
     def calculate_damage(self, armor: Armor) -> float:
         """
@@ -101,6 +103,8 @@ class Weapon(IGameObjectWithPosition):
             All data about resists, etc. will be received from armor class
         """
 
+        if armor == None:
+            return self.physical_damage + self.magical_damage
         return abs(self.physical_damage - armor.vanguard_effect) / max(
             (1 - self.percentage_physical_armor_piercing) * armor.physical_armor
             - self.absolute_physical_armor_piercing,
@@ -115,7 +119,6 @@ class Weapon(IGameObjectWithPosition):
         from roguelike.game_objects.prey import Prey
 
         if len(objects) > 0:
-            print(str(self.previous_time) + "; " + str(self.is_attack_time()))
             if self.is_attack_time():
                 for obj in objects:
                     if not isinstance(obj, Prey):

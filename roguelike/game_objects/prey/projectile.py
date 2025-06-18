@@ -1,4 +1,4 @@
-from roguelike.game_actions.move_action import MoveAction
+from roguelike.game_actions.move import MoveAction
 from .prey import Prey
 from roguelike.interfaces import *
 from typing import override
@@ -6,7 +6,7 @@ from roguelike.types import Cell, Color
 
 
 class Projectile(Prey):
-    def __init__(self, cell, health, direction):
+    def __init__(self, cell: Cell, health: float, direction: Cell):
         from roguelike.game_objects.armor import Armor
         from roguelike.game_objects.weapons import ProjectileWeapon
 

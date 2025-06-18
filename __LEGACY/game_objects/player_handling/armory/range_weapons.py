@@ -1,5 +1,5 @@
 from typing import List, override
-from roguelike.game_actions.create_action import CreateAction
+from roguelike.game_actions.create import CreateAction
 from roguelike.game_objects.player_handling.armory.weapon import (
     Weapon,
     WeaponAttackPattern,

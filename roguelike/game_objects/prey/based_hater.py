@@ -1,5 +1,5 @@
 from roguelike.game_actions.haunt_player import HauntPlayerAction
-from roguelike.game_actions.move_action import MoveAction
+from roguelike.game_actions.move import MoveAction
 from .prey import Prey
 from roguelike.interfaces import *
 from typing import override

@@ -1,10 +1,11 @@
-from .create_action import CreateAction
-from .remove_action import RemoveAction
-from .move_action import MoveAction
-from .damage_action import DamageAction
+from .create import CreateAction
+from .remove import RemoveAction
+from .move import MoveAction
+from .damage import DamageAction
 from .change_room import ChangeRoomAction
 from .change_level import ChangeLevelAction
 from .picked_key import PickedKey
+from .collect_item import CollectItemAction
 
 
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "ChangeRoomAction",
     "ChangeLevelAction",
     "PickedKey",
+    "CollectItemAction",
 ]

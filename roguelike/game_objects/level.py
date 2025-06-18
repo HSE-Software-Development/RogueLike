@@ -23,8 +23,8 @@ class Level(ILevel, IGameObject):
     def __init__(
         self,
         rect: Rect,
+        difficulty: float,
         level_type: LevelType = LevelType.COMMON,
-        difficulty: float = 0.0,
     ):
         self.rect = rect
         self.difficulty = difficulty
@@ -64,8 +64,8 @@ class Level(ILevel, IGameObject):
 
     def init_rooms(self):
         for room in self.rooms:
-            room.on_init()
             room.set_difficulty(self.difficulty)
+            room.on_init()
 
     def set_entry_and_exit(self):
         diametr_path = diameter(self.connections)

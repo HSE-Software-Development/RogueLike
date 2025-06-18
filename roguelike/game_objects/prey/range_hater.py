@@ -1,5 +1,5 @@
 from roguelike.game_actions.haunt_player import HauntPlayerAction
-from roguelike.game_actions.move_action import MoveAction
+from roguelike.game_actions.move import MoveAction
 from .prey import Prey
 from roguelike.interfaces import *
 from typing import override
@@ -7,7 +7,7 @@ from roguelike.types import Cell, Color
 
 
 class RangeHater(Prey):
-    def __init__(self, cell, health, diffculty: float):
+    def __init__(self, cell: Cell, health: float, diffculty: float):
         from roguelike.game_objects.armor import Armor
         from roguelike.game_objects.weapons.range_weapons.wood_bow import WoodBow
 

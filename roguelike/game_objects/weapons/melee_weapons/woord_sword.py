@@ -15,4 +15,4 @@ class WoodSword(MeleeWeapon):
 
     @override
     def on_draw(self, animation):
-        animation.draw(self.cell, "!", color=Color.BLUE, z_buffer=5)
+        animation.draw(self.cell, "!", color=Color.BLUE, z_buffer=4)

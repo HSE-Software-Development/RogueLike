@@ -15,17 +15,20 @@ class MeleeWeapon(Weapon):
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
-        from roguelike.game_actions.damage_action import DamageAction
+        from roguelike.game_actions.damage import DamageAction
 
         new_actions: list[IGameAction] = []
-        if self.is_attack_time():
-            for horizontal_offset in range(0, self.range + 1):
-                for vertical_offset in range(0, self.range + 1):
-                    self.attacked_cells.clear()
-                    self.attacked_cells.append(
-                        self.cell + Cell(horizontal_offset, vertical_offset)
-                    )
-            new_actions.append(
-                DamageAction(sender=self, cells=self.attacked_cells, hit=self.hit)
-            )
+
+        if not self.in_hands:
+            return new_actions
+        for horizontal_offset in range(0, self.range + 1):
+            for vertical_offset in range(0, self.range + 1):
+                self.attacked_cells.clear()
+                self.attacked_cells.append(
+                    self.cell + Cell(horizontal_offset, vertical_offset)
+                )
+        new_actions.append(
+            DamageAction(sender=self, cells=self.attacked_cells, hit=self.hit)
+        )
+
         return new_actions

@@ -47,16 +47,18 @@ class GameManager(IManager):
         self._cur_level_index = 0
         self._levels: list[Level] = []
         self._game_over = GameOver()
-        self._hud = HUD(self._player, 10)
+        self._hud = HUD(self._player, int(self._player.max_health))
 
     def _init(self):
-        for _ in range(3):
+        number_of_levels = 3
+        for i in range(number_of_levels):
             self._levels.append(
                 Level(
                     rect=Rect(
                         lt=Cell(0, 0),
                         rb=Cell(self.level_width - 1, self.level_height - 1),
-                    )
+                    ),
+                    difficulty=(i + 1) / number_of_levels,
                 )
             )
         for level in self._levels:

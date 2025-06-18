@@ -1,6 +1,6 @@
 from typing import List, override
-from roguelike.game_actions.create_action import DeleteAction
-from roguelike.game_actions.move_action import (
+from roguelike.game_actions.create import DeleteAction
+from roguelike.game_actions.move import (
     MoveWithChildrenAction,
 )
 from roguelike.game_objects.player_handling.armory.armor import Armor

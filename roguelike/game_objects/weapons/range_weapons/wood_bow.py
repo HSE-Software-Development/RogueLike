@@ -14,4 +14,18 @@ class WoodBow(RangeWeapon):
 
     @override
     def on_draw(self, animation):
-        animation.draw(self.cell, ")", color=Color.BLUE, z_buffer=5)
+        animation.draw(self.cell, ")", color=Color.BLACK_PURPLE, z_buffer=4)
+
+
+class StrongBow(RangeWeapon):
+    def __init__(self, cell):
+        super().__init__(cell, projectile_health=10)
+
+        self.attack_speed = 5
+        self.physical_damage = 25.0
+        self.percentage_physical_armor_piercing = 10.0
+        self.absolute_physical_armor_piercing = 0
+
+    @override
+    def on_draw(self, animation):
+        animation.draw(self.cell, ")", color=Color.BLACK_YELLOW, z_buffer=4)

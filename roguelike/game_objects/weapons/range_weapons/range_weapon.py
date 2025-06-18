@@ -1,5 +1,5 @@
 from typing import List, override
-from roguelike.game_actions.create_action import CreateAction
+from roguelike.game_actions.create import CreateAction
 from ..weapon import Weapon, WeaponAttackPattern
 from roguelike.types import Cell, Color
 from roguelike.interfaces import *
@@ -18,7 +18,7 @@ class RangeWeapon(Weapon):
     def on_update(self, keyboard: IKeyboard) -> List[IGameAction]:
         from roguelike.game_objects.prey import Projectile
 
-        if self.is_attack_time():
+        if self.in_hands and self.is_attack_time():
             new_actions: List[IGameAction] = []
             for direction in self.directions:
                 projectileObj = Projectile(

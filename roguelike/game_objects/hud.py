@@ -1,9 +1,10 @@
 from roguelike.interfaces import *
+from roguelike.interfaces.item_types import ItemType
 from roguelike.types import Cell, Rect, Color, Effect
 from typing import override, Optional
 from .prey import Player
 from enum import Enum
-from roguelike.game_objects.prey.inventory import InventoryItem, ItemType
+from roguelike.game_objects.prey.inventory import InventoryItem
 
 NONE = """\
 **    **
@@ -99,51 +100,67 @@ class HUD(IGameObject):
                             effects=[],
                         )
 
-    def draw_sword(
-        self,
-        animation: IAnimation,
-        cell: Cell,
-    ):
+    def draw_weapon(self, animation: IAnimation, cell: Cell, is_active: bool):
+        for y, line in enumerate(WEAPON.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    effects = [Effect.DIM]
+                    if is_active:
+                        effects = [Effect.BOLD]
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.CYAN,
+                        z_buffer=5,
+                        effects=effects,
+                    )
+
+    def draw_sword(self, animation: IAnimation, cell: Cell, is_active: bool):
         for y, line in enumerate(SWORD.splitlines()):
             for x, char in enumerate(line):
                 if char != " ":
-                    if char == "*":
-                        animation.draw(
-                            Cell(cell.x + x, cell.y + y),
-                            " ",
-                            color=Color.BLACK_YELLOW,
-                            z_buffer=5,
-                        )
-                    else:
-                        animation.draw(
-                            Cell(cell.x + x, cell.y + y),
-                            char,
-                            color=Color.YELLOW,
-                            z_buffer=5,
-                            effects=[Effect.BOLD],
-                        )
-
-    def draw_bow(
-        self,
-        animation: IAnimation,
-        cell: Cell,
-    ):
-        for y, line in enumerate(BOW.splitlines()):
-            for x, char in enumerate(line):
-                if char != " ":
+                    effects = [Effect.DIM]
+                    if is_active:
+                        effects = [Effect.BOLD]
                     animation.draw(
                         Cell(cell.x + x, cell.y + y),
                         char,
                         color=Color.YELLOW,
                         z_buffer=5,
-                        effects=[Effect.BOLD],
+                        effects=effects,
                     )
 
-    def draw_potion(
-        self,
-        animation: IAnimation,
-        cell: Cell,
-    ):
+    def draw_bow(self, animation: IAnimation, cell: Cell, is_active: bool):
+        for y, line in enumerate(BOW.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    effects = [Effect.DIM]
+                    if is_active:
+                        effects = [Effect.BOLD]
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.YELLOW,
+                        z_buffer=5,
+                        effects=effects,
+                    )
+
+    def draw_armor(self, animation: IAnimation, cell: Cell, is_active: bool):
+        for y, line in enumerate(ARMOR.splitlines()):
+            for x, char in enumerate(line):
+                if char != " ":
+                    effects = [Effect.DIM]
+                    if is_active:
+                        effects = [Effect.BOLD]
+                    animation.draw(
+                        Cell(cell.x + x, cell.y + y),
+                        char,
+                        color=Color.WHITE,
+                        z_buffer=5,
+                        effects=effects,
+                    )
+
+    def draw_potion(self, animation: IAnimation, cell: Cell):
         for y, line in enumerate(POTION.splitlines()):
             for x, char in enumerate(line):
                 if char != " ":
@@ -171,22 +188,6 @@ class HUD(IGameObject):
                         effects=[Effect.BOLD],
                     )
 
-    def draw_weapon(
-        self,
-        animation: IAnimation,
-        cell: Cell,
-    ):
-        for y, line in enumerate(WEAPON.splitlines()):
-            for x, char in enumerate(line):
-                if char != " ":
-                    animation.draw(
-                        Cell(cell.x + x, cell.y + y),
-                        char,
-                        color=Color.CYAN,
-                        z_buffer=5,
-                        effects=[Effect.BOLD],
-                    )
-
     def draw_none(
         self,
         animation: IAnimation,
@@ -199,22 +200,6 @@ class HUD(IGameObject):
                         Cell(cell.x + x, cell.y + y),
                         char,
                         color=Color.RED,
-                        z_buffer=5,
-                        effects=[Effect.BOLD],
-                    )
-
-    def draw_armor(
-        self,
-        animation: IAnimation,
-        cell: Cell,
-    ):
-        for y, line in enumerate(ARMOR.splitlines()):
-            for x, char in enumerate(line):
-                if char != " ":
-                    animation.draw(
-                        Cell(cell.x + x, cell.y + y),
-                        char,
-                        color=Color.WHITE,
                         z_buffer=5,
                         effects=[Effect.BOLD],
                     )
@@ -253,24 +238,32 @@ class HUD(IGameObject):
         draw_rect(
             Rect(
                 Cell(cell.x, cell.y),
-                Cell(cell.x + CELL_WIDTH, cell.y + CELL_HEIGHT),
+                Cell(cell.x + CELL_WIDTH - 1, cell.y + CELL_HEIGHT),
             )
         )
         cell = Cell(cell.x + 1, cell.y + 1)
         if item is None:
             return
         if item.type == ItemType.SWORD:
-            self.draw_sword(animation, cell)
+            self.draw_sword(animation, cell, False)
         elif item.type == ItemType.BOW:
-            self.draw_bow(animation, cell)
+            self.draw_bow(animation, cell, False)
+        elif item.type == ItemType.WEAPON:
+            self.draw_weapon(animation, cell, False)
+        elif item.type == ItemType.ARMOR:
+            self.draw_armor(animation, cell, False)
+        elif item.type == ItemType.ACTIVE_SWORD:
+            self.draw_sword(animation, cell, True)
+        elif item.type == ItemType.ACTIVE_BOW:
+            self.draw_bow(animation, cell, True)
+        elif item.type == ItemType.ACTIVE_WEAPON:
+            self.draw_weapon(animation, cell, True)
+        elif item.type == ItemType.ACTIVE_ARMOR:
+            self.draw_armor(animation, cell, True)
         elif item.type == ItemType.POTION:
             self.draw_potion(animation, cell)
         elif item.type == ItemType.KEY:
             self.draw_key(animation, cell)
-        elif item.type == ItemType.WEAPON:
-            self.draw_weapon(animation, cell)
-        elif item.type == ItemType.ARMOR:
-            self.draw_armor(animation, cell)
         else:
             self.draw_none(animation, cell)
 

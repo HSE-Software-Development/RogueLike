@@ -1,6 +1,6 @@
 from typing import List, override
-from roguelike.game_actions.damage_action import DamageAction
-from roguelike.game_actions.move_action import MoveAction
+from roguelike.game_actions.damage import DamageAction
+from roguelike.game_actions.move import MoveAction
 from roguelike.game_objects.player_handling.armory.weapon import (
     Weapon,
     WeaponAttackPattern,

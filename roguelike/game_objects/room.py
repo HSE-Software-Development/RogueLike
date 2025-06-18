@@ -1,13 +1,15 @@
 import random
 import time
+from roguelike.game_objects.armor.old_robe import BronzeArmor
 from roguelike.game_objects.prey.based_hater import BasedHater
+from roguelike.game_objects.weapons.range_weapons.wood_bow import StrongBow
 from roguelike.interfaces import *
+from roguelike.interfaces.item_types import ItemType
 from roguelike.types import Cell, Rect, Color
 from typing import override, Optional
 from roguelike.game_objects.prey import Player
 from roguelike.game_objects.key import Key
 from roguelike.game_actions import ChangeRoomAction, ChangeLevelAction, PickedKey
-from roguelike.game_objects.prey.inventory import ItemType
 from enum import Enum
 
 
@@ -26,8 +28,6 @@ class Room(IRoom, IGameObject):
         self.player: Optional[Player] = None
         self.flage = True
 
-        self.update_time = 1000.0  # per second
-        self.previous_time = -1.0
         self.room_type: RoomType = RoomType.MAINQUEST
         self.difficulty: float = 0.0
         self.key: Optional[Key] = None
@@ -37,7 +37,11 @@ class Room(IRoom, IGameObject):
         self.add_object(self.key)
 
     def remove_key(self):
-        if self.key is not None:
+        if self.key != None and self.player != None:
+            for item in self.player.inventory.items:
+                if item != None and item.type == ItemType.KEY:
+                    self.player.inventory.items.remove(item)
+                    break
             self.remove_object(self.key)
             self.key = None
 
@@ -62,6 +66,8 @@ class Room(IRoom, IGameObject):
                 cell = Cell(x, y)
                 if (y == door.y or x == door.x) and self.validate_cell(cell):
                     self.player.cell = cell
+                    for child in self.player.children:
+                        child.cell = cell
 
         self.flag = False
         self.add_object(player)
@@ -70,21 +76,20 @@ class Room(IRoom, IGameObject):
         self.player = None
         self.remove_object(player)
 
-    def is_update_time(self) -> bool:
-        current_time = time.monotonic()
-
-        if self.previous_time == -1.0:
-            self.previous_time = current_time
-        elapsed_time = current_time - self.previous_time
-
-        if self.update_time == 0.0 or elapsed_time >= 1.0 / self.update_time:
-            self.previous_time = current_time
-            return True
-        return False
-
     @override
     def on_init(self):
-        for _ in range(0, 5):
+        if self.room_type == RoomType.SIDEQUEST:
+            cell = Cell(
+                random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
+                random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
+            )
+            self.objects.append(StrongBow(cell))
+            cell = Cell(
+                random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
+                random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
+            )
+            self.objects.append(BronzeArmor(cell))
+        for _ in range(0, max(int(self.difficulty * 6), 1)):
             cell = Cell(
                 random.randint(self.rect.lt.x + 1, self.rect.rb.x - 1),
                 random.randint(self.rect.lt.y + 1, self.rect.rb.y - 1),
@@ -140,9 +145,6 @@ class Room(IRoom, IGameObject):
 
     @override
     def on_update(self, keyboard: IKeyboard) -> list[IGameAction]:
-        if not self.is_update_time():
-            return []
-
         actions = []
         for obj in self.objects:
             actions.extend(obj.on_update(keyboard))
@@ -192,6 +194,5 @@ class Room(IRoom, IGameObject):
                 or self.player.cell == self.key.cell + Cell(0, -1)
             ):
                 actions.append(PickedKey(self.index))
-                self.player.inventory.add_item(self.key, ItemType.KEY)
 
         return actions
