@@ -5,7 +5,7 @@ from roguelike.interfaces.keyboard import IKeyboard
 from roguelike.types import Cell, Color
 
 
-class Potion(IGameObjectWithPosition):
+class IPotion(IGameObjectWithPosition):
     def __init__(self, cell: Cell, healling_power: float) -> None:
         self.cell = cell
         self.pickable = True

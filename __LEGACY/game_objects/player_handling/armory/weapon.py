@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import List
 from roguelike.types import GameAction, GameObject
-from roguelike.game_objects.player_handling.armory.armor import Armor
+from roguelike.game_objects.player_handling.armory.armor import IArmor
 from roguelike.keyboard import is_pressed
 from enum import Enum
 import time
@@ -14,7 +14,7 @@ class WeaponAttackPattern(Enum):
     RangeType = 2
 
 
-class Weapon(GameObject):
+class IWeapon(GameObject):
     def __init__(self, cell):
         super().__init__(cell)
 
@@ -47,7 +47,7 @@ class Weapon(GameObject):
         self.percentage_magical_armor_piercing = percentage_magical_armor_piercing
         self.absolute_magical_armor_piercing = absolute_magical_armor_piercing
 
-    def set_same(self, weapon: Weapon):
+    def set_same(self, weapon: IWeapon):
         self.physical_damage = weapon.physical_damage
         self.percentage_physical_armor_piercing = (
             weapon.percentage_physical_armor_piercing
@@ -92,7 +92,7 @@ class Weapon(GameObject):
             return True
         return False
 
-    def __calculate_damage(self, armor: Armor) -> float:
+    def __calculate_damage(self, armor: IArmor) -> float:
         """
         Damage concept: on actions interaction between a player/mob and a weapon provided by weapon functional.
             All data about resists, etc. will be received from armor class
@@ -108,7 +108,7 @@ class Weapon(GameObject):
             1.0,
         )
 
-    def hit(weapon: Weapon, objects: List["Prey"]) -> List[GameAction]:
+    def hit(weapon: IWeapon, objects: List["Prey"]) -> List[GameAction]:
         if weapon.__is_attack_time():
             for Prey in objects:
                 damage = weapon.__calculate_damage(Prey.armor)

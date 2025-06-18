@@ -1,14 +1,14 @@
 from typing import List, override
 from roguelike.game_actions.create import CreateAction
 from roguelike.game_objects.player_handling.armory.weapon import (
-    Weapon,
+    IWeapon,
     WeaponAttackPattern,
 )
 from roguelike.game_objects.player_handling.prey import Projectile
 from roguelike.types import Cell, Color, GameAction
 
 
-class RangeWeapon(Weapon):
+class RangeWeapon(IWeapon):
     def __init__(self, cell, projectile_health):
         super().__init__(cell)
 

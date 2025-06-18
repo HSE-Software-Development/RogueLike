@@ -3,7 +3,7 @@ from roguelike.types import Cell
 from typing import override
 
 
-class Armor(IGameObjectWithPosition):
+class IArmor(IGameObjectWithPosition):
     def __init__(self, cell):
         self.pickable = True
 

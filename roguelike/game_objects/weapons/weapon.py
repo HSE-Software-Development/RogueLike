@@ -3,7 +3,7 @@ from typing import List, override
 from roguelike.interfaces import *
 from roguelike.types import Cell
 from enum import Enum
-from roguelike.game_objects.armor.armor import Armor
+from roguelike.game_objects.armor.armor import IArmor
 import time
 
 
@@ -13,7 +13,7 @@ class WeaponAttackPattern(Enum):
     RangeType = 2
 
 
-class Weapon(IGameObjectWithPosition):
+class IWeapon(IGameObjectWithPosition):
     def __init__(self, cell: Cell):
         self.pickable = True
         self.in_hands = False
@@ -50,7 +50,7 @@ class Weapon(IGameObjectWithPosition):
         self.percentage_magical_armor_piercing = percentage_magical_armor_piercing
         self.absolute_magical_armor_piercing = absolute_magical_armor_piercing
 
-    def set_same(self, weapon: Weapon):
+    def set_same(self, weapon: IWeapon):
         self.physical_damage = weapon.physical_damage
         self.percentage_physical_armor_piercing = (
             weapon.percentage_physical_armor_piercing
@@ -97,7 +97,7 @@ class Weapon(IGameObjectWithPosition):
         else:
             return False
 
-    def calculate_damage(self, armor: Armor) -> float:
+    def calculate_damage(self, armor: IArmor) -> float:
         """
         Damage concept: on actions interaction between a player/mob and a weapon provided by weapon functional.
             All data about resists, etc. will be received from armor class

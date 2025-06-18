@@ -7,10 +7,10 @@ from roguelike.types import Cell, Color
 
 class Projectile(Prey):
     def __init__(self, cell: Cell, health: float, direction: Cell):
-        from roguelike.game_objects.armor import Armor
+        from roguelike.game_objects.armor import IArmor
         from roguelike.game_objects.weapons import ProjectileWeapon
 
-        super().__init__(cell, health, Armor(cell), ProjectileWeapon(cell, self))
+        super().__init__(cell, health, IArmor(cell), ProjectileWeapon(cell, self))
 
         self.direction = direction
         self.update_time = 5.0

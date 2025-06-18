@@ -20,7 +20,7 @@ GAMEWIN = """\
  """
 
 
-class GameOver(IGameObject):
+class GameStatus(IGameObject):
     def __init__(self) -> None:
         super().__init__()
         self.is_win = False

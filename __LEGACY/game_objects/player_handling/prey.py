@@ -3,13 +3,13 @@ from roguelike.game_actions.create import DeleteAction
 from roguelike.game_actions.move import (
     MoveWithChildrenAction,
 )
-from roguelike.game_objects.player_handling.armory.armor import Armor
+from roguelike.game_objects.player_handling.armory.armor import IArmor
 from roguelike.game_objects.player_handling.armory.melee_weapons import (
     MeleeWeapon,
     ProjectileWeapon,
 )
 from roguelike.types import Color, GameAction, GameObject
-from roguelike.game_objects.player_handling.armory.weapon import Weapon
+from roguelike.game_objects.player_handling.armory.weapon import IWeapon
 from roguelike.types import Cell
 from roguelike.keyboard import is_pressed
 
@@ -19,7 +19,7 @@ class Prey(GameObject):
         super().__init__(cell)
 
         self.health = health
-        self.armor = Armor(
+        self.armor = IArmor(
             self.cell
         )  # совсем не важно, как ты ударишь, а важно, какой держишь удар
 
@@ -49,7 +49,7 @@ class Projectile(Prey):
 
 
 class NPC(Prey):
-    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: "Weapon"):
+    def __init__(self, cell: Cell, health: int, armor: IArmor, weapon: "IWeapon"):
         super().__init__(cell, health)
 
         self.armor = armor
@@ -67,7 +67,7 @@ class NPC(Prey):
 
 
 class Player(NPC):
-    def __init__(self, cell: Cell, health: int, armor: Armor, weapon: "Weapon"):
+    def __init__(self, cell: Cell, health: int, armor: IArmor, weapon: "IWeapon"):
         super().__init__(cell, health, armor=armor, weapon=weapon)
         self.children.append(self.armor)
         self.children.append(self.weapon)

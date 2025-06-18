@@ -1,12 +1,12 @@
 from .level import Level
 from .room import Room
 from .hud import HUD
-from .game_over import GameOver
+from .game_status import GameStatus
 
 
 __all__ = [
     "Level",
     "Room",
     "HUD",
-    "GameOver",
+    "GameStatus",
 ]

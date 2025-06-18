@@ -2,13 +2,13 @@ from typing import List, override
 from roguelike.game_actions.damage import DamageAction
 from roguelike.game_actions.move import MoveAction
 from roguelike.game_objects.player_handling.armory.weapon import (
-    Weapon,
+    IWeapon,
     WeaponAttackPattern,
 )
 from roguelike.types import Cell, Color, GameAction
 
 
-class MeleeWeapon(Weapon):
+class MeleeWeapon(IWeapon):
     def __init__(self, cell):
         super().__init__(cell)
 

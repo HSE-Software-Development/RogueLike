@@ -1,10 +1,10 @@
-from ..weapon import Weapon, WeaponAttackPattern
+from ..weapon import IWeapon, WeaponAttackPattern
 from roguelike.types import Cell
 from roguelike.interfaces import *
 from typing import override
 
 
-class MeleeWeapon(Weapon):
+class MeleeWeapon(IWeapon):
     def __init__(self, cell):
         super().__init__(cell)
 

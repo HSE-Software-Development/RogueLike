@@ -8,10 +8,10 @@ from roguelike.types import Cell, Color
 
 class RangeHater(Prey):
     def __init__(self, cell: Cell, health: float, diffculty: float):
-        from roguelike.game_objects.armor import Armor
+        from roguelike.game_objects.armor import IArmor
         from roguelike.game_objects.weapons.range_weapons.wood_bow import WoodBow
 
-        super().__init__(cell, health, Armor(cell), WoodBow(cell))
+        super().__init__(cell, health, IArmor(cell), WoodBow(cell))
 
         self.direction = Cell(0, 0)
         self.update_time = 1.0 + diffculty * 3  # per 1 second

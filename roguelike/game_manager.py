@@ -6,11 +6,11 @@ from roguelike.animation import Animation
 from roguelike.types import Rect, Cell, Color
 import time
 from roguelike.game_objects.prey import Player
-from roguelike.game_objects.armor import Armor
-from roguelike.game_objects.weapons import Weapon
+from roguelike.game_objects.armor import IArmor
+from roguelike.game_objects.weapons import IWeapon
 from roguelike.game_objects import HUD
-from roguelike.game_objects import GameOver
-from roguelike.game_objects.game_over import GAMEOVER
+from roguelike.game_objects import GameStatus
+from roguelike.game_objects.game_status import GAMEOVER
 from roguelike.game_objects.prey.inventory import Inventory
 import curses
 from typing import override
@@ -46,7 +46,7 @@ class GameManager(IManager):
         )
         self._cur_level_index = 0
         self._levels: list[Level] = []
-        self._game_over = GameOver()
+        self._game_over = GameStatus()
         self._hud = HUD(self._player, int(self._player.max_health))
 
     def _init(self):

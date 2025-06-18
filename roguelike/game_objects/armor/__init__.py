@@ -1,6 +1,6 @@
-from .armor import Armor
+from .armor import IArmor
 
 
 __all__ = [
-    "Armor",
+    "IArmor",
 ]

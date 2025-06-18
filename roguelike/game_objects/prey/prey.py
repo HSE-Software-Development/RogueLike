@@ -1,15 +1,17 @@
 import time
 from roguelike.game_objects.prey.inventory import Inventory, ItemType
-from roguelike.game_objects.weapons.weapon import Weapon
+from roguelike.game_objects.weapons.melee_weapons.melee_weapon import MeleeWeapon
+from roguelike.game_objects.weapons.range_weapons.range_weapon import RangeWeapon
+from roguelike.game_objects.weapons.weapon import IWeapon
 from roguelike.types import Cell
 from roguelike.interfaces import *
 from roguelike.game_actions.remove import RemoveAction
-from roguelike.game_objects.armor import Armor
+from roguelike.game_objects.armor import IArmor
 from typing import List, override
 
 
 class Prey(IGameObjectWithPosition):
-    def __init__(self, cell: Cell, health: float, armor: Armor, weapon: Weapon):
+    def __init__(self, cell: Cell, health: float, armor: IArmor, weapon: IWeapon):
         self.cell = cell
         self.pickable = False
 
@@ -29,11 +31,17 @@ class Prey(IGameObjectWithPosition):
         self.inventory = Inventory(size=5)
 
         self.inventory.select_item(0)
-        self.inventory.add_item(self.armor, ItemType.ACTIVE_ARMOR)
+        armor_type = ItemType.ACTIVE_ARMOR
+        self.inventory.add_item(self.armor, armor_type)
         self.children.append(self.armor)
 
         self.inventory.select_item(1)
-        self.inventory.add_item(self.weapon, ItemType.ACTIVE_WEAPON)
+        weapon_type = ItemType.ACTIVE_WEAPON
+        if isinstance(self.weapon, MeleeWeapon):
+            weapon_type = ItemType.ACTIVE_SWORD
+        if isinstance(self.weapon, RangeWeapon):
+            weapon_type = ItemType.ACTIVE_BOW
+        self.inventory.add_item(self.weapon, weapon_type)
         self.children.append(self.weapon)
 
     def is_update_time(self) -> bool:

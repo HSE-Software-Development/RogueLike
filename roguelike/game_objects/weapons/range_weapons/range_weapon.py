@@ -1,11 +1,11 @@
 from typing import List, override
 from roguelike.game_actions.create import CreateAction
-from ..weapon import Weapon, WeaponAttackPattern
+from ..weapon import IWeapon, WeaponAttackPattern
 from roguelike.types import Cell, Color
 from roguelike.interfaces import *
 
 
-class RangeWeapon(Weapon):
+class RangeWeapon(IWeapon):
     def __init__(self, cell, projectile_health):
         super().__init__(cell)
 

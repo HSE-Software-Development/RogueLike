@@ -1,10 +1,10 @@
 from roguelike.game_actions.create import CreateAction
 from roguelike.game_actions.remove import RemoveAction
-from roguelike.game_objects.armor.armor import Armor
-from roguelike.game_objects.potions.potion import Potion
+from roguelike.game_objects.armor.armor import IArmor
+from roguelike.game_objects.potions.potion import IPotion
 from roguelike.game_objects.weapons.melee_weapons.melee_weapon import MeleeWeapon
 from roguelike.game_objects.weapons.range_weapons.range_weapon import RangeWeapon
-from roguelike.game_objects.weapons.weapon import Weapon
+from roguelike.game_objects.weapons.weapon import IWeapon
 from roguelike.interfaces.animation import IAnimation
 from roguelike.interfaces.item_types import ItemType
 from roguelike.types import Cell, Rect
@@ -32,7 +32,7 @@ class Inventory(IGameObject):
         dropped = self.items[self.current]
         self.items[self.current] = None
         if dropped != None:
-            if isinstance(dropped.obj, Weapon):
+            if isinstance(dropped.obj, IWeapon):
                 dropped.obj.in_hands = False
             return [CreateAction(dropped.obj)]
         return []
@@ -52,15 +52,15 @@ class Inventory(IGameObject):
         new_actions: List[IRoomGameAction] = []
 
         if item_type == None or item_type == ItemType.NONE:
-            if isinstance(item, Weapon):
+            if isinstance(item, IWeapon):
                 item_type = ItemType.WEAPON
             if isinstance(item, MeleeWeapon):
                 item_type = ItemType.SWORD
             if isinstance(item, RangeWeapon):
                 item_type = ItemType.BOW
-            if isinstance(item, Armor):
+            if isinstance(item, IArmor):
                 item_type = ItemType.ARMOR
-            if isinstance(item, Potion):
+            if isinstance(item, IPotion):
                 item_type = ItemType.POTION
 
         if item.pickable:

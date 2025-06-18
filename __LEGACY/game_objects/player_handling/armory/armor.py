@@ -1,7 +1,7 @@
 from roguelike.types import Color, GameObject
 
 
-class Armor(GameObject):
+class IArmor(GameObject):
     def __init__(self, position):
         super().__init__(position)
 
@@ -22,7 +22,7 @@ class Armor(GameObject):
         pass
 
 
-class OldRobe(Armor):
+class OldRobe(IArmor):
     def __init__(self, position):
         super().__init__(position)
 

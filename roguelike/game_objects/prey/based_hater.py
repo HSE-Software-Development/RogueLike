@@ -8,10 +8,10 @@ from roguelike.types import Cell, Color
 
 class BasedHater(Prey):
     def __init__(self, cell: Cell, health: int, difficulty: float):
-        from roguelike.game_objects.armor import Armor
+        from roguelike.game_objects.armor import IArmor
         from roguelike.game_objects.weapons import ProjectileWeapon
 
-        super().__init__(cell, health, Armor(cell), ProjectileWeapon(cell, self))
+        super().__init__(cell, health, IArmor(cell), ProjectileWeapon(cell, self))
 
         self.update_time = 1.0 + int(difficulty)  # per 1 second
         self.weapon.attack_speed = self.update_time

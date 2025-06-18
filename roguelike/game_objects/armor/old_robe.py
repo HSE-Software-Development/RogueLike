@@ -1,10 +1,10 @@
-from .armor import Armor
+from .armor import IArmor
 from typing import override
 from roguelike.interfaces import *
 from roguelike.types import Color
 
 
-class OldRobe(Armor):
+class OldRobe(IArmor):
     def __init__(self, position):
         super().__init__(position)
 
@@ -16,7 +16,7 @@ class OldRobe(Armor):
         animation.draw(self.cell, "&", color=Color.BLACK_GREEN, z_buffer=4)
 
 
-class BronzeArmor(Armor):
+class BronzeArmor(IArmor):
     def __init__(self, position):
         super().__init__(position)
 
