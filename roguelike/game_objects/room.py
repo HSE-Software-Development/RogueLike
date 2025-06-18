@@ -124,7 +124,7 @@ class Room(IRoom, IGameObject):
         color = (
             Color.BLACK_PURPLE
             if self.room_type == RoomType.MAINQUEST
-            else Color.BLACK_YELLOW
+            else Color.BLACK_PURPLE
         )
 
         for x in range(self.rect.left, self.rect.right + 1):
