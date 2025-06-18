@@ -12,6 +12,7 @@ class RangeWeapon(Weapon):
         self.attack_pattern = WeaponAttackPattern.RangeType
         self.attack_speed = 0.5
         self.projectile_health = projectile_health
+        self.projectile_velocity = 5.0
         self.directions: List[Cell] = [Cell(1, 0)]
 
     @override
@@ -26,6 +27,7 @@ class RangeWeapon(Weapon):
                     health=self.projectile_health,
                     direction=direction,
                 )
+                projectileObj.update_time = self.projectile_velocity
                 projectileObj.weapon.set_same(self)
                 new_actions.append(CreateAction(projectileObj))
             return new_actions

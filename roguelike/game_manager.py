@@ -36,7 +36,7 @@ class GameManager(IManager):
         )
         self.level_width = width
         self.level_height = height - 10
-        self.is_game_over = False
+        self.game_status: int = -1  # 0 for over, 1 for win
 
         self._player = Player(
             health=10,
@@ -67,7 +67,7 @@ class GameManager(IManager):
         self._levels[self._cur_level_index].set_player(self._player)
 
     def _update(self):
-        if not self.is_game_over:
+        if self.game_status < 0:
             actions = []
             actions.extend(self._hud.on_update(self._keyboard))
             actions.extend(
@@ -79,7 +79,7 @@ class GameManager(IManager):
                     action.manager_handler(self)
 
     def _draw(self):
-        if not self.is_game_over:
+        if self.game_status < 0:
             self._hud.on_draw(
                 self._animation.with_area(
                     margin_x=0,
@@ -103,6 +103,8 @@ class GameManager(IManager):
                 color=Color.RED,
             )
         else:
+            if self.game_status == 1:
+                self._game_over.is_win = True
             self._game_over.on_draw(
                 self._animation.with_area(
                     margin_x=self._width // 2 - len(GAMEOVER.splitlines()[0]) // 2,
@@ -115,12 +117,14 @@ class GameManager(IManager):
     def _game_loop(self):
         self._init()
         while True:
+            if self._keyboard.is_pressed("p"):
+                return
+
             self._update()
 
             self._draw()
             self._animation.render()
 
-            # curses.napms(50)
             self._animation.clear()
 
     def run(self):
@@ -131,7 +135,7 @@ class GameManager(IManager):
         if not self._levels[self._cur_level_index].key_picked:
             return
         if self._cur_level_index == len(self._levels) - 1:
-            self.is_game_over = True
+            self.game_status = 1
             return
 
         from roguelike.game_objects.prey.inventory import ItemType
@@ -142,4 +146,4 @@ class GameManager(IManager):
         self._levels[self._cur_level_index].set_player(self._player)
 
     def set_gameover(self):
-        self.is_game_over = True
+        self.game_status = 0

@@ -5,12 +5,13 @@ from typing import override
 
 class WoodBow(RangeWeapon):
     def __init__(self, cell):
-        super().__init__(cell, projectile_health=10)
+        super().__init__(cell, projectile_health=5)
 
         self.attack_speed = 0.5
-        self.physical_damage = 15.0
+        self.physical_damage = 6.0
         self.percentage_physical_armor_piercing = 0.0
         self.absolute_physical_armor_piercing = 0
+        self.projectile_velocity = 10.0
 
     @override
     def on_draw(self, animation):
@@ -19,12 +20,13 @@ class WoodBow(RangeWeapon):
 
 class StrongBow(RangeWeapon):
     def __init__(self, cell):
-        super().__init__(cell, projectile_health=10)
+        super().__init__(cell, projectile_health=15)
 
         self.attack_speed = 5
         self.physical_damage = 25.0
         self.percentage_physical_armor_piercing = 10.0
         self.absolute_physical_armor_piercing = 0
+        self.projectile_velocity = 100.0
 
     @override
     def on_draw(self, animation):
