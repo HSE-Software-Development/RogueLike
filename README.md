@@ -67,6 +67,7 @@ Armor:
 ### Паттерны проектирования
 * Dependency inversion
 * Observer - подписка game_manager, level, room на события в своих детях
+* State - изменение состояния уровней и комнат
 
 ### План приемки
 
