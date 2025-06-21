@@ -27,6 +27,6 @@ class IPotion(IGameObjectWithPosition):
 
     def on_draw(self, animation: IAnimation):
         if self.used:
-            animation.draw(self.cell, "6", color=Color.GREEN, z_buffer=5)
+            animation.draw(self.cell, "6", color=Color.GREEN, z_buffer=4)
         else:
-            animation.draw(self.cell, "6", color=Color.BLACK_GREEN, z_buffer=5)
+            animation.draw(self.cell, "6", color=Color.BLACK_GREEN, z_buffer=4)
